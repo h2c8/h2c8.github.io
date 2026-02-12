@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>AG+ | Data Sonification</title>
+
+<style>
+/* ===============================
+   Reset / Base
+================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.55;
+  overflow: hidden; /* no scroll mobile */
+}
+
+/* ===============================
+   Main layout (single axis)
+================================ */
+main {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+
+  padding:
+    calc(4svh + env(safe-area-inset-top))
+    calc(5vw + env(safe-area-inset-right))
+    calc(4svh + env(safe-area-inset-bottom))
+    calc(5vw + env(safe-area-inset-left));
+}
+
+/* ===============================
+   Typography
+================================ */
+h1 {
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-weight: 500;
+}
+
+h2 {
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 4svh 0 2svh;
+}
+
+p {
+  font-size: clamp(0.95rem, 4vw, 1rem);
+  margin-bottom: 1.2svh;
+}
+
+/* ===============================
+   Sections
+================================ */
+section {
+  margin-bottom: 2svh;
+}
+
+/* ===============================
+   Works
+================================ */
+.work {
+  margin-bottom: 2svh;
+}
+
+.work-title {
+  font-weight: 500;
+}
+
+.work-desc {
+  font-size: 0.95em;
+  max-width: 40ch;
+}
+
+/* ===============================
+   Links (bottom, aligned)
+================================ */
+.links {
+  margin-top: auto; /* push to bottom */
+  padding-top: 3svh;
+}
+
+.links a {
+  display: inline-block;
+  padding: 0.4rem 0;
+  text-decoration: none;
+  color: black;
+  font-size: 0.95rem;
+}
+
+.links a + a {
+  margin-left: 1.2rem;
+}
+
+.links a:active {
+  opacity: 0.6;
+}
+
+/* ===============================
+   Desktop behaviour
+================================ */
+@media (min-width: 900px) {
+  body {
+    overflow: auto;
+  }
+
+  main {
+    max-width: 780px;
+    margin: auto;
+    padding-top: 12vh;
+    padding-bottom: 16vh;
+  }
+
+  .links {
+    margin-top: 6vh;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+  <!-- STATEMENT -->
+  <section>
+    <h1>Antonio Greco</h1>
+    <p>
+      Software Engineer and Data Processing.
+    </p>
+  </section>
+
+  <section>
+    <h2>Statement</h2>
+    <p>
+      Software engineer working on data visualization, process design and sound computing.
+    </p>
+  </section>
+
+  <!-- WORKS -->
+  <section>
+    <h2>Works</h2>
+
+    <div class="work">
+      <div class="work-title">AS4EM</div>
+      <div class="work-desc">
+        Alphabetic sonification framework.<br>
+        Encrypted text rendered as sound patterns.
+      </div>
+    </div>
+
+    <div class="work">
+      <div class="work-title">Operational Web Tools</div>
+      <div class="work-desc">
+        Minimal systems for tasks, data and service workflows.
+      </div>
+    </div>
+  </section>
+
+  <!-- LINKS -->
+  <div class="links">
+    <a href="https://www.linkedin.com/in/yourname" target="_blank">LinkedIn</a>
+    <a href="https://www.instagram.com/yourname" target="_blank">Instagram</a>
+    <a href="https://www.bandcamp.com/yourname" target="_blank">Bandcamp</a>
+  </div>
+
+</main>
+
+</body>
+</html>
