@@ -1,187 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Landing | Split Screen Interattivo</title>
+    <style>
+        /* =========================================
+           1. VARIABILI E FONDAMENTA
+           ========================================= */
+        :root {
+            --color-bg: #FFFFFF;
+            --color-text: #111111;
+            --color-line: #E5E5E5; 
+            --color-text-muted: #666666;
+            --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            
+            --padding-x: clamp(1.5rem, 6vw, 5rem);
+            --space-xs: 1rem;
+            --space-sm: 2rem;
+            --space-md: 4rem;
+        }
 
-<title>AG Dev | Data Sonification</title>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<style>
-/* ===============================
-   Reset / Base
-================================ */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-main);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.5;
+            overflow-x: hidden;
+            scroll-behavior: smooth; /* Abilita lo scroll fluido nativo */
+        }
 
-html, body {
-  height: 100%;
-  -webkit-text-size-adjust: 100%;
-}
+        /* =========================================
+           2. VIEWPORT 100DVH E GRIGLIA 50/50
+           ========================================= */
+        .viewport-fold {
+            min-height: 100dvh; 
+            display: flex;
+            flex-direction: column;
+        }
 
-body {
-  background: #ffffff;
-  color: #000000;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.55;
-  overflow: hidden; /* no scroll mobile */
-}
+        nav {
+            flex-shrink: 0; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem var(--padding-x);
+            border-bottom: 1px solid var(--color-line);
+        }
 
-/* ===============================
-   Main layout (single axis)
-================================ */
-main {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+        .logo {
+            font-weight: 500;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
 
-  padding:
-    calc(4svh + env(safe-area-inset-top))
-    calc(5vw + env(safe-area-inset-right))
-    calc(4svh + env(safe-area-inset-bottom))
-    calc(5vw + env(safe-area-inset-left));
-}
+        /* La griglia divisa esattamente a metà */
+        .hero {
+            flex-grow: 1; 
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+        }
 
-/* ===============================
-   Typography
-================================ */
-h1 {
-  font-size: clamp(1.6rem, 6vw, 2.2rem);
-  font-weight: 500;
-}
+        /* Colonna Sinistra (Testo) */
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            padding: 0 var(--padding-x); 
+            gap: var(--space-md);
+            border-right: 1px solid var(--color-line); /* La linea chirurgica centrale */
+        }
 
-h2 {
-  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 4svh 0 2svh;
-}
+        /* Colonna Destra (Immagine Interattiva) */
+        .hero-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--color-bg); /* Appare vuota di default */
+        }
 
-p {
-  font-size: clamp(0.95rem, 4vw, 1rem);
-  margin-bottom: 1.2svh;
-}
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            filter: grayscale(100%); 
+            opacity: 0; /* Immagine invisibile in partenza */
+            transform: scale(1.05); /* Leggermente ingrandita per l'effetto di entrata */
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-/* ===============================
-   Sections
-================================ */
-section {
-  margin-bottom: 2svh;
-}
+        /* LA MAGIA: Quando il trigger viene sfiorato, l'immagine appare */
+        .hero:has(.hover-trigger:hover) .hero-image,
+        .hero:has(.hover-trigger:active) .hero-image {
+            opacity: 1;
+            transform: scale(1);
+        }
 
-/* ===============================
-   Works
-================================ */
-.work {
-  margin-bottom: 2svh;
-}
+        /* =========================================
+           3. TIPOGRAFIA E TRIGGER
+           ========================================= */
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 5.5rem); 
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            font-weight: 500;
+            max-width: 12ch; 
+        }
 
-.work-title {
-  font-weight: 500;
-}
+        /* La parola interattiva */
+        .hover-trigger {
+            position: relative;
+            cursor: crosshair;
+            display: inline-block;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 6px;
+            text-decoration-color: var(--color-line);
+            transition: text-decoration-color 0.3s ease;
+        }
 
-.work-desc {
-  font-size: 0.95em;
-  max-width: 40ch;
-}
+        .hover-trigger:hover {
+            text-decoration-color: var(--color-text);
+        }
 
-/* ===============================
-   Links (bottom, aligned)
-================================ */
-.links {
-  margin-top: auto; /* push to bottom */
-  padding-top: 3svh;
-}
+        h2 {
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--space-xs);
+        }
 
-.links a {
-  display: inline-block;
-  padding: 0.4rem 0;
-  text-decoration: none;
-  color: black;
-  font-size: 0.95rem;
-}
+        p {
+            font-size: clamp(1rem, 1.25vw, 1.125rem);
+            color: var(--color-text-muted);
+            max-width: 50ch;
+            margin-bottom: var(--space-sm);
+        }
 
-.links a + a {
-  margin-left: 1.2rem;
-}
+        /* Testo Scorrevole */
+        .marquee-wrapper {
+            flex-shrink: 0; 
+            border-top: 1px solid var(--color-line);
+            border-bottom: 1px solid var(--color-line);
+            padding: 1.5rem 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
 
-.links a:active {
-  opacity: 0.6;
-}
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 25s linear infinite;
+        }
 
-/* ===============================
-   Desktop behaviour
-================================ */
-@media (min-width: 900px) {
-  body {
-    overflow: auto;
-  }
+        .marquee-text {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding-right: 2rem;
+            color: var(--color-text);
+        }
 
-  main {
-    max-width: 780px;
-    margin: auto;
-    padding-top: 12vh;
-    padding-bottom: 16vh;
-  }
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
 
-  .links {
-    margin-top: 6vh;
-  }
-}
-</style>
+        /* =========================================
+           4. LE 3 COLONNE (Sotto la piega)
+           ========================================= */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-bottom: 1px solid var(--color-line);
+        }
+
+        .feature-block {
+            padding: var(--space-md) var(--padding-x);
+            border-right: 1px solid var(--color-line);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+        }
+
+        .feature-block:hover {
+            background-color: #FAFAFA; /* Feedback sottilissimo al passaggio del mouse */
+        }
+
+        .feature-block:last-child {
+            border-right: none;
+        }
+
+        .feature-num {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-xs);
+            display: block;
+        }
+
+        /* =========================================
+           5. PULSANTI
+           ========================================= */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            color: var(--color-text);
+            background-color: transparent;
+            border: 1px solid var(--color-line);
+            border-radius: 50px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .btn:hover {
+            border-color: var(--color-text);
+            background-color: var(--color-text);
+            color: var(--color-bg);
+        }
+
+        /* =========================================
+           6. RESPONSIVE MOBILE
+           ========================================= */
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr; /* Torna a colonna singola */
+                position: relative;
+            }
+            .hero-content {
+                border-right: none;
+                z-index: 2; /* Il testo sta sopra */
+            }
+            .hero-image-wrapper {
+                position: absolute; /* L'immagine va in background su mobile */
+                top: 0; left: 0; right: 0; bottom: 0;
+                z-index: 1;
+            }
+            .hero:has(.hover-trigger:hover) .hero-image,
+            .hero:has(.hover-trigger:active) .hero-image {
+                opacity: 0.15; /* Effetto filigrana delicato su smartphone */
+            }
+            .features {
+                grid-template-columns: 1fr;
+            }
+            .feature-block {
+                border-right: none;
+                border-bottom: 1px solid var(--color-line);
+                padding: var(--space-md) var(--padding-x);
+            }
+            .feature-block:last-child {
+                border-bottom: none;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<main>
+    <div class="viewport-fold">
+        
+        <nav>
+            <div class="logo">Studio.</div>
+            <a href="#" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.875rem;">Contattaci</a>
+        </nav>
 
-  <!-- STATEMENT -->
-  <section>
-    <h1>Antonio Greco</h1>
-    <p>
-      Data Sonification
-    </p>
-  </section>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>How to choose in the <span class="hover-trigger">infinity?</span></h1>
+                <div>
+                    <p>Un approccio rigoroso al web design. Spazio bianco, tipografia iconica e linee sottili per comunicare con assoluta chiarezza ed eleganza.</p>
+                    <a href="#scopri" class="btn js-scroll">Scopri il metodo</a>
+                </div>
+            </div>
+            
+            <div class="hero-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop" class="hero-image" alt="Visione architettonica">
+            </div>
+        </section>
 
-  <section>
-    <h2>Statement</h2>
-    <p>
-      Software Developer working on data visualization, process design and sound computing.
-    </p>
-  </section>
+        <div class="marquee-wrapper">
+            <div class="marquee-content">
+                <span class="marquee-text">Design Minimalista &mdash; Chirurgia Visiva &mdash; Tipografia Helvetica &mdash; Spazio Negativo &mdash; </span>
+                <span class="marquee-text">Design Minimalista &mdash; Chirurgia Visiva &mdash; Tipografia Helvetica &mdash; Spazio Negativo &mdash; </span>
+            </div>
+        </div>
 
-  <!-- WORKS -->
-  <section>
-    <h2>Works</h2>
-<!--
-    <div class="work">
-      <div class="work-title">AS4EM</div>
-      <div class="work-desc">
-        Alphabetic sonification framework.<br>
-        Encrypted text rendered as sound patterns.
-      </div>
     </div>
 
-    <div class="work">
-      <div class="work-title">Operational Web Tools</div>
-      <div class="work-desc">
-        Minimal systems for tasks, data and service workflows.
-      </div>
-    </div>
-  </section>
--->
-  <!-- LINKS -->
-  <div class="links">
-    <a href="https://www.linkedin.com/in/yourname" target="_blank">LinkedIn</a>
-    <a href="https://www.instagram.com/yourname" target="_blank">Instagram</a>
-    <a href="https://www.bandcamp.com/yourname" target="_blank">Bandcamp</a>
-  </div>
 
-</main>
+
+    <script>
+        document.querySelectorAll('.js-scroll').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
