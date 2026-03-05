@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Landing | Split Screen Interattivo</title>
+    <title>H2C8 | Digital Residency</title>
     <style>
         /* =========================================
-           1. VARIABILI E FONDAMENTA
+           1. VARIABILI E FONDAMENTA (Pure B&W)
            ========================================= */
         :root {
             --color-bg: #FFFFFF;
-            --color-text: #111111;
-            --color-line: #E5E5E5; 
-            --color-text-muted: #666666;
+            --color-text: #000000;
             --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --font-mono: "Courier New", Courier, monospace;
             
-            --padding-x: clamp(1.5rem, 6vw, 5rem);
-            --space-xs: 1rem;
-            --space-sm: 2rem;
-            --space-md: 4rem;
+            --padding-x: clamp(2rem, 6vw, 5rem);
+            --space-md: clamp(2rem, 5vw, 4rem);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @media (hover: hover) and (pointer: fine) {
+            body, a, .btn, .sonic-canvas-wrapper { cursor: none !important; }
         }
 
         body {
@@ -33,289 +30,438 @@
             font-family: var(--font-main);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            line-height: 1.5;
+            line-height: 1.4;
             overflow-x: hidden;
-            scroll-behavior: smooth; /* Abilita lo scroll fluido nativo */
+            scroll-behavior: smooth;
         }
 
         /* =========================================
-           2. VIEWPORT 100DVH E GRIGLIA 50/50
+           2. IL CURSORE
+           ========================================= */
+        .custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 14px; height: 14px;
+            background-color: var(--color-bg); 
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference; 
+            transform: translate3d(-50%, -50%, 0) scale(1);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .custom-cursor { display: block; }
+        }
+
+        .custom-cursor.hovering { transform: translate3d(-50%, -50%, 0) scale(2.5); }
+        .custom-cursor.drawing { transform: translate3d(-50%, -50%, 0) scale(0.4); }
+
+        /* =========================================
+           3. VIEWPORT E GRIGLIA
            ========================================= */
         .viewport-fold {
             min-height: 100dvh; 
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
-        nav {
-            flex-shrink: 0; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem var(--padding-x);
-            border-bottom: 1px solid var(--color-line);
+        /* Mirini */
+        .crosshair {
+            position: absolute;
+            width: 11px; height: 11px;
+            z-index: 20;
+            pointer-events: none;
         }
-
-        .logo {
-            font-weight: 500;
-            font-size: 1.25rem;
-            letter-spacing: -0.02em;
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: var(--color-text);
         }
+        .crosshair::before { top: 5px; left: 0; width: 11px; height: 1px; } 
+        .crosshair::after { top: 0; left: 5px; width: 1px; height: 11px; } 
 
-        /* La griglia divisa esattamente a metà */
+        .crosshair.top { top: -6px; left: 50%; transform: translateX(-50%); }
+        .crosshair.bottom { bottom: -6px; left: 50%; transform: translateX(-50%); }
+
         .hero {
             flex-grow: 1; 
             display: grid;
             grid-template-columns: 1fr 1fr; 
+            position: relative;
         }
 
-        /* Colonna Sinistra (Testo) */
         .hero-content {
             display: flex;
             flex-direction: column;
             justify-content: center; 
             padding: 0 var(--padding-x); 
-            gap: var(--space-md);
-            border-right: 1px solid var(--color-line); /* La linea chirurgica centrale */
-        }
-
-        /* Colonna Destra (Immagine Interattiva) */
-        .hero-image-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--color-bg); /* Appare vuota di default */
-        }
-
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; 
-            filter: grayscale(100%); 
-            opacity: 0; /* Immagine invisibile in partenza */
-            transform: scale(1.05); /* Leggermente ingrandita per l'effetto di entrata */
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* LA MAGIA: Quando il trigger viene sfiorato, l'immagine appare */
-        .hero:has(.hover-trigger:hover) .hero-image,
-        .hero:has(.hover-trigger:active) .hero-image {
-            opacity: 1;
-            transform: scale(1);
+            gap: 1.5rem; 
+            border-right: 1px solid var(--color-text);
+            z-index: 2;
         }
 
         /* =========================================
-           3. TIPOGRAFIA E TRIGGER
+           4. IL CANVAS SONORO
            ========================================= */
-        h1 {
-            font-size: clamp(2.5rem, 5vw, 5.5rem); 
-            line-height: 1.05;
-            letter-spacing: -0.03em;
-            font-weight: 500;
-            max-width: 12ch; 
-        }
-
-        /* La parola interattiva */
-        .hover-trigger {
+        .sonic-canvas-wrapper {
             position: relative;
-            cursor: crosshair;
-            display: inline-block;
-            text-decoration: underline;
-            text-decoration-thickness: 2px;
-            text-underline-offset: 6px;
-            text-decoration-color: var(--color-line);
-            transition: text-decoration-color 0.3s ease;
-        }
-
-        .hover-trigger:hover {
-            text-decoration-color: var(--color-text);
-        }
-
-        h2 {
-            font-size: clamp(1.5rem, 2.5vw, 2rem);
-            font-weight: 500;
-            letter-spacing: -0.02em;
-            margin-bottom: var(--space-xs);
-        }
-
-        p {
-            font-size: clamp(1rem, 1.25vw, 1.125rem);
-            color: var(--color-text-muted);
-            max-width: 50ch;
-            margin-bottom: var(--space-sm);
-        }
-
-        /* Testo Scorrevole */
-        .marquee-wrapper {
-            flex-shrink: 0; 
-            border-top: 1px solid var(--color-line);
-            border-bottom: 1px solid var(--color-line);
-            padding: 1.5rem 0;
+            width: 100%; height: 100%;
+            background-color: var(--color-bg);
             overflow: hidden;
-            white-space: nowrap;
+            touch-action: none; 
         }
 
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 25s linear infinite;
-        }
-
-        .marquee-text {
-            font-size: clamp(1.5rem, 4vw, 3rem);
-            font-weight: 300;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding-right: 2rem;
+        #sonic-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
             color: var(--color-text);
         }
 
-        @keyframes marquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
+        .trajectory-line {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1px;
+            stroke-dasharray: 4; 
         }
 
-        /* =========================================
-           4. LE 3 COLONNE (Sotto la piega)
-           ========================================= */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            border-bottom: 1px solid var(--color-line);
+        .frequency-point {
+            fill: currentColor;
+            transition: transform 0.1s ease;
         }
 
-        .feature-block {
-            padding: var(--space-md) var(--padding-x);
-            border-right: 1px solid var(--color-line);
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.3s ease;
+        .frequency-point.active {
+            transform: scale(3.5);
+            transform-origin: center;
         }
 
-        .feature-block:hover {
-            background-color: #FAFAFA; /* Feedback sottilissimo al passaggio del mouse */
+        .node-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            fill: currentColor;
+            pointer-events: none;
         }
 
-        .feature-block:last-child {
-            border-right: none;
+        /* HUD: Dati in basso a destra, incolonnati */
+        .coordinates {
+            position: absolute;
+            bottom: 1.5rem; right: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--color-text);
+            pointer-events: none;
+            text-align: right;
+            line-height: 1.4;
         }
 
-        .feature-num {
-            font-size: 0.875rem;
-            color: var(--color-text-muted);
-            margin-bottom: var(--space-xs);
+        .coord-line {
             display: block;
         }
 
         /* =========================================
-           5. PULSANTI
+           5. TIPOGRAFIA E PULSANTI
            ========================================= */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
-            color: var(--color-text);
-            background-color: transparent;
-            border: 1px solid var(--color-line);
-            border-radius: 50px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: fit-content;
+        h1 {
+            font-size: clamp(3rem, 5vw, 6rem); 
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+            font-weight: 500;
+            max-width: 12ch; 
         }
 
-        .btn:hover {
-            border-color: var(--color-text);
-            background-color: var(--color-text);
-            color: var(--color-bg);
+        p {
+            font-size: clamp(0.9rem, 1.1vw, 1rem);
+            color: var(--color-text);
+            max-width: 45ch;
+            line-height: 1.6;
         }
+
+        .marquee-wrapper {
+            flex-shrink: 0; padding: 1.25rem 0; overflow: hidden; white-space: nowrap;
+            background-color: var(--color-bg); position: relative; z-index: 10;
+        }
+        .marquee-wrapper.top { border-bottom: 1px solid var(--color-text); }
+        .marquee-wrapper.bottom { border-top: 1px solid var(--color-text); }
+
+        .marquee-content { display: inline-block; animation: marquee 25s linear infinite; }
+        .marquee-text {
+            font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 400; text-transform: uppercase;
+            letter-spacing: 0.05em; padding-right: 2rem; color: var(--color-text);
+        }
+
+        @keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+
+        .action-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.9rem 2rem; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--color-text); background-color: transparent;
+            border: 1px solid var(--color-text); border-radius: 50px; text-decoration: none;
+            transition: all 0.3s ease; width: fit-content; font-weight: 600;
+        }
+        .btn:hover { background-color: var(--color-text); color: var(--color-bg); }
 
         /* =========================================
            6. RESPONSIVE MOBILE
            ========================================= */
         @media (max-width: 900px) {
-            .hero {
-                grid-template-columns: 1fr; /* Torna a colonna singola */
-                position: relative;
+            .hero { grid-template-columns: 1fr; }
+            .hero-content { 
+                border-right: none; 
+                border-bottom: 1px solid var(--color-text);
+                padding-top: var(--space-md); padding-bottom: var(--space-md); 
             }
-            .hero-content {
-                border-right: none;
-                z-index: 2; /* Il testo sta sopra */
-            }
-            .hero-image-wrapper {
-                position: absolute; /* L'immagine va in background su mobile */
-                top: 0; left: 0; right: 0; bottom: 0;
-                z-index: 1;
-            }
-            .hero:has(.hover-trigger:hover) .hero-image,
-            .hero:has(.hover-trigger:active) .hero-image {
-                opacity: 0.15; /* Effetto filigrana delicato su smartphone */
-            }
-            .features {
-                grid-template-columns: 1fr;
-            }
-            .feature-block {
-                border-right: none;
-                border-bottom: 1px solid var(--color-line);
-                padding: var(--space-md) var(--padding-x);
-            }
-            .feature-block:last-child {
-                border-bottom: none;
-            }
+            .sonic-canvas-wrapper { min-height: 50vh; }
+            .crosshair { display: none; } 
+            .coordinates { bottom: 1rem; right: 1rem; font-size: 0.65rem; }
+            body { cursor: auto !important; }
         }
     </style>
 </head>
 <body>
 
+    <div class="custom-cursor" id="cursor"></div>
+
     <div class="viewport-fold">
         
-        <nav>
-            <div class="logo">Studio.</div>
-            <a href="#" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.875rem;">Contattaci</a>
-        </nav>
+        <div class="marquee-wrapper top">
+            <div class="marquee-content">
+                <span class="marquee-text">Curatorial Platform &mdash; Sonic Studies &mdash; Data Sonification &mdash;</span>
+                <span class="marquee-text">Curatorial Platform &mdash; Sonic Studies &mdash; Data Sonification &mdash;</span>
+            </div>
+        </div>
 
         <section class="hero">
+            <div class="crosshair top"></div>
+            
             <div class="hero-content">
-                <h1>How to choose in the <span class="hover-trigger">infinity?</span></h1>
+                <h1>How to choose in the infinity?</h1>
                 <div>
-                    <p>Un approccio rigoroso al web design. Spazio bianco, tipografia iconica e linee sottili per comunicare con assoluta chiarezza ed eleganza.</p>
-                    <a href="#scopri" class="btn js-scroll">Scopri il metodo</a>
+                    <p>Componi le frequenze nel vuoto. Y = Frequenza. Lunghezza del tratto = Durata della nota.</p>
+                    <div class="action-group">
+                        <button class="btn interactive-element" id="btn-play">Play Sequence</button>
+                        <button class="btn interactive-element" id="btn-clear">Clear</button>
+                    </div>
                 </div>
             </div>
             
-            <div class="hero-image-wrapper">
-                <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop" class="hero-image" alt="Visione architettonica">
+            <div class="sonic-canvas-wrapper" id="canvas">
+                <svg id="sonic-svg">
+                    <g id="trajectory-group">
+                        <polyline class="trajectory-line" id="trajectory" points=""></polyline>
+                        <line class="trajectory-line" id="ghost-line" x1="0" y1="0" x2="0" y2="0" style="opacity: 0.3; display: none;"></line>
+                    </g>
+                    <g id="nodes-group"></g>
+                </svg>
+                <div class="coordinates" id="coords">
+                    <span class="coord-line" id="coord-freq">FREQ: ---- Hz</span>
+                    <span class="coord-line" id="coord-leng">LENG: --.-- s</span>
+                </div>
             </div>
+
+            <div class="crosshair bottom"></div>
         </section>
 
-        <div class="marquee-wrapper">
+        <div class="marquee-wrapper bottom">
             <div class="marquee-content">
-                <span class="marquee-text">Design Minimalista &mdash; Chirurgia Visiva &mdash; Tipografia Helvetica &mdash; Spazio Negativo &mdash; </span>
-                <span class="marquee-text">Design Minimalista &mdash; Chirurgia Visiva &mdash; Tipografia Helvetica &mdash; Spazio Negativo &mdash; </span>
+                <span class="marquee-text">Generative Audio &mdash; Astrazione Rigorosa &mdash; Tipografia &mdash;</span>
+                <span class="marquee-text">Generative Audio &mdash; Astrazione Rigorosa &mdash; Tipografia &mdash;</span>
             </div>
         </div>
 
     </div>
 
-
-
     <script>
-        document.querySelectorAll('.js-scroll').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+        /* --- GESTIONE CURSORE MAGICO --- */
+        const cursor = document.getElementById('cursor');
+        const interactives = document.querySelectorAll('.interactive-element');
+        const canvas = document.getElementById('canvas');
+
+        if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%) scale(${cursor.classList.contains('hovering') ? 2.5 : (cursor.classList.contains('drawing') ? 0.3 : 1)})`;
+            });
+
+            interactives.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+            });
+
+            canvas.addEventListener('mouseenter', () => cursor.classList.add('drawing'));
+            canvas.addEventListener('mouseleave', () => cursor.classList.remove('drawing'));
+        }
+
+        /* --- LOGICA CANVAS SONORO E LABEL --- */
+        const svg = document.getElementById('sonic-svg');
+        const trajectory = document.getElementById('trajectory');
+        const ghostLine = document.getElementById('ghost-line');
+        const nodesGroup = document.getElementById('nodes-group');
+        
+        const displayFreq = document.getElementById('coord-freq');
+        const displayLeng = document.getElementById('coord-leng');
+        
+        const btnPlay = document.getElementById('btn-play');
+        const btnClear = document.getElementById('btn-clear');
+
+        let sequence = [];
+        let audioCtx = null;
+
+        const FREQ_MIN = 40;
+        const FREQ_MAX = 15000;
+        const DUR_MIN = 0.05; 
+        const DUR_MAX = 2.0;  
+
+        function mapYToFreq(y, height) {
+            const normalizedY = 1 - (y / height); 
+            return FREQ_MIN * Math.pow(FREQ_MAX / FREQ_MIN, normalizedY);
+        }
+
+        // Funzione per aggiornare le coordinate e la preview della durata
+        function updateCoordinates(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            if(x < 0 || x > rect.width || y < 0 || y > rect.height) {
+                ghostLine.style.display = 'none';
+                return;
+            }
+
+            // Calcolo Frequenza attuale
+            const freq = mapYToFreq(y, rect.height).toFixed(0);
+            displayFreq.innerText = `FREQ: ${freq.padStart(4, '0')} Hz`;
+
+            // Calcolo Preview Durata (se esiste almeno un nodo)
+            if (sequence.length > 0) {
+                const lastNode = sequence[sequence.length - 1];
+                const maxDistance = Math.hypot(rect.width, rect.height);
+                const distance = Math.hypot(x - lastNode.x, y - lastNode.y);
+                const calcDur = DUR_MIN + ((distance / maxDistance) * (DUR_MAX - DUR_MIN));
+                
+                displayLeng.innerText = `LENG: ${calcDur.toFixed(2)} s`;
+
+                // Disegna linea fantasma
+                ghostLine.setAttribute('x1', lastNode.x);
+                ghostLine.setAttribute('y1', lastNode.y);
+                ghostLine.setAttribute('x2', x);
+                ghostLine.setAttribute('y2', y);
+                ghostLine.style.display = 'block';
+            } else {
+                displayLeng.innerText = `LENG: --.-- s`;
+                ghostLine.style.display = 'none';
+            }
+        }
+
+        canvas.addEventListener('mousemove', (e) => updateCoordinates(e.clientX, e.clientY));
+        canvas.addEventListener('touchmove', (e) => updateCoordinates(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+        canvas.addEventListener('mouseleave', () => { ghostLine.style.display = 'none'; });
+
+        // Click Event per piazzare i nodi
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const maxDistance = Math.hypot(rect.width, rect.height);
+            
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const freq = mapYToFreq(y, rect.height);
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', 3.5);
+            circle.setAttribute('class', 'frequency-point');
+            circle.style.transformOrigin = `${x}px ${y}px`;
+            
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', x + 8); 
+            label.setAttribute('y', y + 4); 
+            label.setAttribute('class', 'node-label');
+            label.textContent = `${freq.toFixed(0)}Hz`; 
+            
+            nodesGroup.appendChild(circle);
+            nodesGroup.appendChild(label);
+            
+            const newNode = { x, y, freq, duration: 0.5, element: circle, labelElement: label };
+            
+            // Calcolo distanza/durata rispetto al nodo precedente
+            if (sequence.length > 0) {
+                const prevNode = sequence[sequence.length - 1];
+                const distance = Math.hypot(x - prevNode.x, y - prevNode.y);
+                prevNode.duration = DUR_MIN + ((distance / maxDistance) * (DUR_MAX - DUR_MIN));
+                prevNode.labelElement.textContent = `${prevNode.freq.toFixed(0)}Hz | ${prevNode.duration.toFixed(2)}s`;
+            }
+
+            sequence.push(newNode);
+            updateTrajectory();
+        });
+
+        function updateTrajectory() {
+            const pointsString = sequence.map(p => `${p.x},${p.y}`).join(' ');
+            trajectory.setAttribute('points', pointsString);
+            ghostLine.style.display = 'none'; // Nasconde la linea fantasma al click
+        }
+
+        btnClear.addEventListener('click', () => {
+            while (nodesGroup.firstChild) {
+                nodesGroup.removeChild(nodesGroup.firstChild);
+            }
+            sequence = [];
+            updateTrajectory();
+            displayLeng.innerText = `LENG: --.-- s`;
+        });
+
+        /* --- MOTORE SINTESI AUDIO (Senza Pan) --- */
+        function playTone(freq, duration, circleElement, delayTime) {
+            const startTime = audioCtx.currentTime + delayTime;
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sine'; 
+            oscillator.frequency.setValueAtTime(freq, startTime);
+
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.02); 
+            gainNode.gain.setValueAtTime(0.4, Math.max(startTime + 0.02, startTime + duration - 0.02));
+            gainNode.gain.linearRampToValueAtTime(0, startTime + duration); 
+
+            oscillator.connect(gainNode).connect(audioCtx.destination); 
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+
+            setTimeout(() => {
+                circleElement.classList.add('active');
+                setTimeout(() => {
+                    circleElement.classList.remove('active');
+                }, duration * 1000);
+            }, delayTime * 1000);
+        }
+
+        btnPlay.addEventListener('click', () => {
+            if (sequence.length === 0) return;
+            
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            let accumulatedDelay = 0;
+
+            sequence.forEach((point) => {
+                playTone(point.freq, point.duration, point.element, accumulatedDelay);
+                accumulatedDelay += point.duration; 
             });
         });
-    </script>
 
+    </script>
 </body>
 </html>
