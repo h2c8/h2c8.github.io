@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H2C8 | Digital Residency</title>
+    <title>Minimal Landing | Absolute Instrument</title>
     <style>
         /* =========================================
            1. VARIABILI E FONDAMENTA (Pure B&W)
@@ -16,13 +16,10 @@
             
             --padding-x: clamp(2rem, 6vw, 5rem);
             --space-md: clamp(2rem, 5vw, 4rem);
+            --space-lg: clamp(4rem, 10vw, 8rem);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        @media (hover: hover) and (pointer: fine) {
-            body, a, .btn, .sonic-canvas-wrapper { cursor: none !important; }
-        }
 
         body {
             background-color: var(--color-bg);
@@ -35,8 +32,18 @@
             scroll-behavior: smooth;
         }
 
+        /* Gestione blocco scroll quando menu mobile è aperto */
+        body.menu-open {
+            overflow: hidden;
+        }
+
+        /* Nascondiamo il cursore di sistema SOLO nelle aree interattive */
+        @media (hover: hover) and (pointer: fine) {
+            .interactive-zone, .interactive-zone button { cursor: none !important; }
+        }
+
         /* =========================================
-           2. IL CURSORE
+           2. IL CURSORE CUSTOM
            ========================================= */
         .custom-cursor {
             position: fixed;
@@ -45,22 +52,127 @@
             background-color: var(--color-bg); 
             border-radius: 50%;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 99999; /* Sopra a tutto */
             mix-blend-mode: difference; 
             transform: translate3d(-50%, -50%, 0) scale(1);
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
             display: none;
+            opacity: 0; 
         }
 
-        @media (hover: hover) and (pointer: fine) {
-            .custom-cursor { display: block; }
-        }
+        @media (hover: hover) and (pointer: fine) { .custom-cursor { display: block; } }
 
+        .custom-cursor.active { opacity: 1; }
         .custom-cursor.hovering { transform: translate3d(-50%, -50%, 0) scale(2.5); }
         .custom-cursor.drawing { transform: translate3d(-50%, -50%, 0) scale(0.4); }
 
         /* =========================================
-           3. VIEWPORT E GRIGLIA
+           3. NAVBAR E MENU MOBILE
+           ========================================= */
+        .main-nav {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem var(--padding-x);
+            border-bottom: 1px solid var(--color-text);
+            background-color: var(--color-bg);
+            position: relative;
+            z-index: 10001; /* Sopra l'overlay del menu mobile */
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--color-text);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--color-text);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-links a:hover { opacity: 0.5; }
+
+        /* Hamburger Button (Mobile) */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 10002;
+        }
+
+        .mobile-menu-toggle .bar {
+            width: 24px;
+            height: 2px;
+            background-color: var(--color-text);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        /* Animazione Hamburger ad X */
+        .mobile-menu-toggle.open .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .mobile-menu-toggle.open .bar:nth-child(2) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* Overlay Mobile Menu */
+        .mobile-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100dvh;
+            background-color: var(--color-bg);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .mobile-nav-links a {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            text-decoration: none;
+            color: var(--color-text);
+            font-weight: 500;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-nav-links a:active { transform: scale(0.95); }
+
+        /* =========================================
+           4. VIEWPORT E GRIGLIA DELLO STRUMENTO
            ========================================= */
         .viewport-fold {
             min-height: 100dvh; 
@@ -69,131 +181,69 @@
             position: relative;
         }
 
-        /* Mirini */
         .crosshair {
-            position: absolute;
-            width: 11px; height: 11px;
-            z-index: 20;
-            pointer-events: none;
+            position: absolute; width: 11px; height: 11px; z-index: 20; pointer-events: none;
         }
-        .crosshair::before, .crosshair::after {
-            content: '';
-            position: absolute;
-            background-color: var(--color-text);
-        }
+        .crosshair::before, .crosshair::after { content: ''; position: absolute; background-color: var(--color-text); }
         .crosshair::before { top: 5px; left: 0; width: 11px; height: 1px; } 
         .crosshair::after { top: 0; left: 5px; width: 1px; height: 11px; } 
-
         .crosshair.top { top: -6px; left: 50%; transform: translateX(-50%); }
         .crosshair.bottom { bottom: -6px; left: 50%; transform: translateX(-50%); }
 
         .hero {
-            flex-grow: 1; 
-            display: grid;
-            grid-template-columns: 1fr 1fr; 
-            position: relative;
+            flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; position: relative;
         }
 
         .hero-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            padding: 0 var(--padding-x); 
-            gap: 1.5rem; 
-            border-right: 1px solid var(--color-text);
-            z-index: 2;
+            display: flex; flex-direction: column; justify-content: center; 
+            padding: 0 var(--padding-x); gap: 1.5rem; 
+            border-right: 1px solid var(--color-text); z-index: 2;
         }
 
         /* =========================================
-           4. IL CANVAS SONORO
+           5. IL CANVAS SONORO E HUD
            ========================================= */
         .sonic-canvas-wrapper {
-            position: relative;
-            width: 100%; height: 100%;
-            background-color: var(--color-bg);
-            overflow: hidden;
-            touch-action: none; 
+            position: relative; width: 100%; height: 100%;
+            background-color: var(--color-bg); overflow: hidden; touch-action: none; 
         }
 
         #sonic-svg {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            color: var(--color-text);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; color: var(--color-text);
         }
 
-        .trajectory-line {
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1px;
-            stroke-dasharray: 4; 
-        }
+        .trajectory-line { fill: none; stroke: currentColor; stroke-width: 1px; stroke-dasharray: 4; }
+        .frequency-point { fill: currentColor; transition: transform 0.1s ease; }
+        .frequency-point.active { transform: scale(3.5); transform-origin: center; }
+        .node-label { font-family: var(--font-mono); font-size: 10px; fill: currentColor; pointer-events: none; }
 
-        .frequency-point {
-            fill: currentColor;
-            transition: transform 0.1s ease;
-        }
-
-        .frequency-point.active {
-            transform: scale(3.5);
-            transform-origin: center;
-        }
-
-        .node-label {
-            font-family: var(--font-mono);
-            font-size: 10px;
-            fill: currentColor;
-            pointer-events: none;
-        }
-
-        /* HUD: Dati in basso a destra, incolonnati */
         .coordinates {
-            position: absolute;
-            bottom: 1.5rem; right: 1.5rem;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: var(--color-text);
-            pointer-events: none;
-            text-align: right;
-            line-height: 1.4;
+            position: absolute; bottom: 1.5rem; right: 1.5rem;
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text);
+            pointer-events: none; text-align: right; line-height: 1.4;
         }
-
-        .coord-line {
-            display: block;
-        }
+        .coord-line { display: block; }
 
         /* =========================================
-           5. TIPOGRAFIA E PULSANTI
+           6. TIPOGRAFIA GENERALE E PULSANTI
            ========================================= */
-        h1 {
-            font-size: clamp(3rem, 5vw, 6rem); 
-            line-height: 1.02;
-            letter-spacing: -0.04em;
-            font-weight: 500;
-            max-width: 12ch; 
-        }
+        h1 { font-size: clamp(3rem, 5vw, 6rem); line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; max-width: 12ch; }
+        p { font-size: clamp(0.9rem, 1.1vw, 1rem); color: var(--color-text); max-width: 45ch; line-height: 1.6; }
 
-        p {
-            font-size: clamp(0.9rem, 1.1vw, 1rem);
-            color: var(--color-text);
-            max-width: 45ch;
-            line-height: 1.6;
-        }
+        .desc-title { font-size: clamp(1.5rem, 2vw, 2.5rem); font-weight: 500; letter-spacing: -0.02em; margin-bottom: 1rem; }
 
         .marquee-wrapper {
             flex-shrink: 0; padding: 1.25rem 0; overflow: hidden; white-space: nowrap;
             background-color: var(--color-bg); position: relative; z-index: 10;
         }
         .marquee-wrapper.top { border-bottom: 1px solid var(--color-text); }
-        .marquee-wrapper.bottom { border-top: 1px solid var(--color-text); }
-
+        .marquee-wrapper.bottom { border-top: 1px solid var(--color-text); border-bottom: 1px solid var(--color-text); }
         .marquee-content { display: inline-block; animation: marquee 25s linear infinite; }
         .marquee-text {
             font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 400; text-transform: uppercase;
             letter-spacing: 0.05em; padding-right: 2rem; color: var(--color-text);
         }
-
         @keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
 
         .action-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; }
@@ -206,21 +256,41 @@
             transition: all 0.3s ease; width: fit-content; font-weight: 600;
         }
         .btn:hover { background-color: var(--color-text); color: var(--color-bg); }
+        .btn.outline { padding: 0.7rem 1.8rem; border-width: 1px; }
 
         /* =========================================
-           6. RESPONSIVE MOBILE
+           7. SEZIONE DESCRITTIVA
+           ========================================= */
+        .description-section {
+            padding: var(--space-lg) var(--padding-x); display: grid;
+            grid-template-columns: 1fr 2fr; gap: var(--space-md);
+            max-width: 1800px; margin: 0 auto;
+        }
+        .description-sidebar {
+            font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.05em; color: #555; padding-top: 0.5rem;
+        }
+        .description-content { display: flex; flex-direction: column; gap: var(--space-md); }
+        .content-block { max-width: 65ch; }
+
+        /* =========================================
+           8. RESPONSIVE MOBILE
            ========================================= */
         @media (max-width: 900px) {
+            .nav-links { display: none; } /* Nascondiamo i link standard */
+            .mobile-menu-toggle { display: flex; } /* Mostriamo l'hamburger */
+
             .hero { grid-template-columns: 1fr; }
             .hero-content { 
-                border-right: none; 
-                border-bottom: 1px solid var(--color-text);
+                border-right: none; border-bottom: 1px solid var(--color-text);
                 padding-top: var(--space-md); padding-bottom: var(--space-md); 
             }
             .sonic-canvas-wrapper { min-height: 50vh; }
             .crosshair { display: none; } 
             .coordinates { bottom: 1rem; right: 1rem; font-size: 0.65rem; }
-            body { cursor: auto !important; }
+            
+            .description-section { grid-template-columns: 1fr; gap: var(--space-sm); }
+            .description-sidebar { border-bottom: 1px solid var(--color-text); padding-bottom: 1rem; margin-bottom: 1rem; }
         }
     </style>
 </head>
@@ -228,7 +298,30 @@
 
     <div class="custom-cursor" id="cursor"></div>
 
-    <div class="viewport-fold">
+    <nav class="main-nav">
+        <a href="#" class="logo interactive-element">Studio.</a>
+        
+        <div class="nav-links">
+            <a href="#instrument-zone" class="interactive-element">Strumento</a>
+            <a href="#about" class="interactive-element">Il Progetto</a>
+            <a href="#contact" class="btn outline interactive-element">Apply Now</a>
+        </div>
+
+        <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Apri menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+    </nav>
+
+    <div class="mobile-overlay" id="mobile-overlay">
+        <div class="mobile-nav-links">
+            <a href="#instrument-zone" class="mobile-link">Strumento</a>
+            <a href="#about" class="mobile-link">Il Progetto</a>
+            <a href="#contact" class="mobile-link">Apply Now</a>
+        </div>
+    </div>
+
+    <div class="viewport-fold interactive-zone" id="instrument-zone">
         
         <div class="marquee-wrapper top">
             <div class="marquee-content">
@@ -277,10 +370,62 @@
 
     </div>
 
+    <section class="description-section" id="about">
+        
+        <div class="description-sidebar">
+            <p>01. Il Concept</p>
+            <p style="margin-top: 0.5rem;">Project 2026<br>Berlin &mdash; Milan</p>
+        </div>
+
+        <div class="description-content">
+            <div class="content-block">
+                <h2 class="desc-title">L'architettura del suono nel vuoto digitale.</h2>
+                <p>Questo strumento esplora la relazione tra spazio bianco e composizione generativa. Rimuovendo i vincoli delle interfacce standard, l'utente è costretto a confrontarsi con il foglio bianco, dove la distanza fisica tra due coordinate si traduce direttamente nel dominio del tempo acustico.</p>
+            </div>
+            
+            <div class="content-block">
+                <h2 class="desc-title">La matematica della sottrazione.</h2>
+                <p>Nessun colore, nessuna immagine fotografica. Utilizziamo esclusivamente il calcolo delle onde sinusoidali attraverso le Web Audio API. La griglia invisibile definisce un limite paramaterico: lo spettro delle frequenze udibili sull'asse verticale, e il limite di decadimento del suono sulla lunghezza del tratto vettoriale. È un approccio chirurgico alla sound art.</p>
+            </div>
+        </div>
+
+    </section>
+
+                    <div class="marquee-wrapper bottom">
+            <div class="marquee-content">
+                <span class="marquee-text">Generative Audio &mdash; Astrazione Rigorosa &mdash; Tipografia &mdash;</span>
+                <span class="marquee-text">Generative Audio &mdash; Astrazione Rigorosa &mdash; Tipografia &mdash;</span>
+            </div>
+        </div>
+
+
     <script>
+        /* --- LOGICA MENU MOBILE --- */
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileBtn.classList.toggle('open');
+            mobileOverlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open'); // Blocca lo scroll dietro
+        }
+
+        mobileBtn.addEventListener('click', toggleMenu);
+
+        // Chiudi menu quando clicchi un link
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if(mobileOverlay.classList.contains('active')) {
+                    toggleMenu();
+                }
+            });
+        });
+
         /* --- GESTIONE CURSORE MAGICO --- */
         const cursor = document.getElementById('cursor');
-        const interactives = document.querySelectorAll('.interactive-element');
+        const instrumentZone = document.getElementById('instrument-zone');
+        const interactives = document.querySelectorAll('.interactive-element, a.logo, .nav-links a');
         const canvas = document.getElementById('canvas');
 
         if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
@@ -292,6 +437,11 @@
                 mouseY = e.clientY;
                 cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%) scale(${cursor.classList.contains('hovering') ? 2.5 : (cursor.classList.contains('drawing') ? 0.3 : 1)})`;
             });
+
+            // Appare solo se il mouse è nella viewport iniziale o naviga la UI strumentale
+            instrumentZone.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            instrumentZone.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+            document.querySelector('.main-nav').addEventListener('mouseenter', () => cursor.classList.add('active'));
 
             interactives.forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
@@ -327,7 +477,6 @@
             return FREQ_MIN * Math.pow(FREQ_MAX / FREQ_MIN, normalizedY);
         }
 
-        // Funzione per aggiornare le coordinate e la preview della durata
         function updateCoordinates(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
             const x = clientX - rect.left;
@@ -338,11 +487,9 @@
                 return;
             }
 
-            // Calcolo Frequenza attuale
             const freq = mapYToFreq(y, rect.height).toFixed(0);
             displayFreq.innerText = `FREQ: ${freq.padStart(4, '0')} Hz`;
 
-            // Calcolo Preview Durata (se esiste almeno un nodo)
             if (sequence.length > 0) {
                 const lastNode = sequence[sequence.length - 1];
                 const maxDistance = Math.hypot(rect.width, rect.height);
@@ -351,7 +498,6 @@
                 
                 displayLeng.innerText = `LENG: ${calcDur.toFixed(2)} s`;
 
-                // Disegna linea fantasma
                 ghostLine.setAttribute('x1', lastNode.x);
                 ghostLine.setAttribute('y1', lastNode.y);
                 ghostLine.setAttribute('x2', x);
@@ -367,7 +513,6 @@
         canvas.addEventListener('touchmove', (e) => updateCoordinates(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
         canvas.addEventListener('mouseleave', () => { ghostLine.style.display = 'none'; });
 
-        // Click Event per piazzare i nodi
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
             const maxDistance = Math.hypot(rect.width, rect.height);
@@ -395,7 +540,6 @@
             
             const newNode = { x, y, freq, duration: 0.5, element: circle, labelElement: label };
             
-            // Calcolo distanza/durata rispetto al nodo precedente
             if (sequence.length > 0) {
                 const prevNode = sequence[sequence.length - 1];
                 const distance = Math.hypot(x - prevNode.x, y - prevNode.y);
@@ -410,19 +554,17 @@
         function updateTrajectory() {
             const pointsString = sequence.map(p => `${p.x},${p.y}`).join(' ');
             trajectory.setAttribute('points', pointsString);
-            ghostLine.style.display = 'none'; // Nasconde la linea fantasma al click
+            ghostLine.style.display = 'none'; 
         }
 
         btnClear.addEventListener('click', () => {
-            while (nodesGroup.firstChild) {
-                nodesGroup.removeChild(nodesGroup.firstChild);
-            }
+            while (nodesGroup.firstChild) { nodesGroup.removeChild(nodesGroup.firstChild); }
             sequence = [];
             updateTrajectory();
             displayLeng.innerText = `LENG: --.-- s`;
         });
 
-        /* --- MOTORE SINTESI AUDIO (Senza Pan) --- */
+        /* --- MOTORE SINTESI AUDIO --- */
         function playTone(freq, duration, circleElement, delayTime) {
             const startTime = audioCtx.currentTime + delayTime;
             const oscillator = audioCtx.createOscillator();
