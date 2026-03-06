@@ -490,7 +490,7 @@
         <section class="snap-page" id="p1">
             <div class="p1-cto">
                 <div class="p1-cto-top">
-                    <h1 class="p1-h1">How to choose in the infinity?</h1>
+                    <h1 class="p1-h1">How to choose <br>in the infinity?</h1>
                     <p class="p1-desc">
                         Nello spazio acustico, la frequenza è posizione e il tempo è distanza. Componi le frequenze nel vuoto. La distanza fisica fra i punti definisce la durata di ogni nota. Dbl-Click o Tasto Destro per isolare le note.
                     </p>
@@ -640,7 +640,7 @@
             lbl.setAttribute('class', 'node-lbl');
             
             const node = { x, y, freq, duration: 0.5, dot, lbl, isDetached: false };
-            lbl.textContent = `${Math.round(freq)}Hz | ${node.duration.toFixed(2)}s`;
+            lbl.textContent = `${Math.round(freq)}Hz, ${node.duration.toFixed(2)}s`;
 
             nodesGroup.appendChild(dot);
             nodesGroup.appendChild(lbl);
