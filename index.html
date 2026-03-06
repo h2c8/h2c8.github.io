@@ -649,7 +649,7 @@
                 const prev = sequence[sequence.length - 1];
                 const dist = Math.hypot(x - prev.x, y - prev.y);
                 prev.duration = DUR_MIN + ((dist / md) * (DUR_MAX - DUR_MIN));
-                prev.lbl.textContent = `${Math.round(prev.freq)}Hz | ${prev.duration.toFixed(2)}s`;
+                prev.lbl.textContent = `${Math.round(prev.freq)}Hz, ${prev.duration.toFixed(2)}s`;
             } else if (sequence.length > 0 && sequence[sequence.length - 1].forceNextDetach) {
                 node.isDetached = true;
                 sequence[sequence.length - 1].forceNextDetach = false;
