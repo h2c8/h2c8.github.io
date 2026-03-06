@@ -6,9 +6,11 @@
     <title>Absolute Instrument</title>
     <style>
         :root {
-            --bg:     #FFFFFF;
-            --ink:    #000000;
+            --bg: #FFFFFF;
+            --ink: #000000;
             --border: 1px solid var(--ink);
+            --pad-lg: 3rem;
+            --pad-sm: 2rem;
         }
 
         *, *::before, *::after {
@@ -34,7 +36,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 2rem;
+            padding: 0 var(--pad-lg);
             background: var(--bg);
             border-bottom: var(--border);
         }
@@ -163,9 +165,7 @@
             display: flex;
         }
 
-        #p1 {
-            flex-direction: row;
-        }
+        #p1 { flex-direction: row; }
 
         .p1-cto {
             flex: 0 0 50%;
@@ -174,7 +174,7 @@
             flex-direction: column;
             align-items: flex-start;
             justify-content: center;
-            padding: 3rem 3rem;
+            padding: var(--pad-lg);
             text-align: left;
         }
 
@@ -186,7 +186,7 @@
         }
 
         .p1-h1 {
-            font-size: 3rem;
+            font-size: 4rem;
             line-height: 0.95;
             letter-spacing: -0.04em;
             font-weight: 500;
@@ -261,38 +261,12 @@
 
         .node-lbl {
             font-weight: 600;
-            font-size: 10px;
+            font-size: 9px;
             fill: currentColor;
+            white-space: nowrap;
         }
 
-        .hud-data {
-            position: absolute;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            text-align: right;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--ink);
-            display: flex;
-            gap: 2rem;
-            pointer-events: none;
-            background: var(--bg);
-            padding: 0.5rem 1rem;
-            border: var(--border);
-            font-weight: 500;
-        }
-
-        .hud-data em {
-            font-style: normal;
-            font-weight: bold;
-            min-width: 4ch;
-            display: inline-block;
-        }
-
-        #p2 {
-            flex-direction: column;
-        }
+        #p2 { flex-direction: column; }
 
         .p2-top {
             flex: 0 0 25%;
@@ -302,6 +276,7 @@
             justify-content: center;
             gap: 0.5rem;
             overflow: hidden;
+            padding: 0 var(--pad-lg);
         }
 
         .marquee-track {
@@ -323,48 +298,32 @@
         }
 
         @keyframes scrl-l {
-            to {
-                transform: translateX(-50%);
-            }
+            to { transform: translateX(-50%); }
         }
 
         @keyframes scrl-r {
-            0% {
-                transform: translateX(-50%);
-            }
-            100% {
-                transform: translateX(0);
-            }
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
         }
 
         .p2-bot {
             flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 2rem;
+            padding: var(--pad-lg);
         }
 
-        .p2-image {
-            width: 100%;
-            height: auto;
-            max-height: 80%;
-            object-fit: cover;
-            margin-bottom: 1.5rem;
-        }
-
-        .p2-statement {
+        .p2-text {
             font-size: 0.9rem;
             font-weight: 400;
-            line-height: 1.6;
-            text-align: center;
-            max-width: 60ch;
+            line-height: 1.8;
+            text-align: left;
+            max-width: 70ch;
         }
 
-        #p3 {
-            flex-direction: column;
-        }
+        #p3 { flex-direction: column; }
 
         .p3-top {
             flex: 0 0 50%;
@@ -372,7 +331,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: var(--pad-lg);
         }
 
         .p3-title {
@@ -391,7 +350,7 @@
 
         .p3-col {
             flex: 1;
-            padding: 2rem;
+            padding: var(--pad-lg);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -417,7 +376,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 2rem;
+            padding: var(--pad-lg);
         }
 
         .p4-cell:nth-child(1) {
@@ -473,73 +432,34 @@
         }
 
         @media (max-width: 900px) {
-            .nav-links {
-                display: none;
+            :root {
+                --pad-lg: 2rem;
             }
 
-            .burger {
-                display: flex;
-            }
-
-            #p1 {
-                flex-direction: column;
-            }
-
+            .nav-links { display: none; }
+            .burger { display: flex; }
+            #p1 { flex-direction: column; }
             .p1-cto {
                 flex: 0 0 45%;
                 border-right: none;
                 border-bottom: var(--border);
                 justify-content: flex-start;
-                padding: 1.5rem 2rem;
+                padding: var(--pad-lg);
             }
-
-            .p1-h1 {
-                font-size: 2.2rem;
-            }
-
-            .p1-canvas {
-                flex: 1;
-            }
-
-            .p2-statement {
-                font-size: 0.85rem;
-            }
-
-            #p3 {
-                flex-direction: column;
-            }
-
-            .p3-top {
-                flex: 0 0 35%;
-            }
-
-            .p3-title {
-                font-size: 2.8rem;
-            }
-
-            .p3-bot {
-                flex-direction: column;
-            }
-
+            .p1-h1 { font-size: 2.8rem; }
+            .p1-canvas { flex: 1; }
+            #p3 { flex-direction: column; }
+            .p3-top { flex: 0 0 35%; }
+            .p3-title { font-size: 2.8rem; }
+            .p3-bot { flex-direction: column; }
             .p3-col {
                 flex: 1;
                 border-right: none;
                 border-bottom: var(--border);
-                padding: 1.5rem 2rem;
+                padding: var(--pad-lg);
                 justify-content: center;
             }
-
-            .p3-col:last-child {
-                border-bottom: none;
-            }
-
-            .p4-cell {
-                padding: 1.5rem;
-            }
-
-            .p4-h3 {
-                font-size: 1.5rem;
-            }
+            .p3-col:last-child { border-bottom: none; }
         }
     </style>
 </head>
@@ -572,7 +492,7 @@
                 <div class="p1-cto-top">
                     <h1 class="p1-h1">How to choose in the infinity?</h1>
                     <p class="p1-desc">
-                        Nello spazio acustico, la frequenza è posizione e il tempo è distanza. Ogni nota che componi non è solo suono, ma una coordinata nello spazio invisibile. La griglia che vedi non è casuale: rappresenta il territorio dove il silenzio incontra la vibrazione. Componi le frequenze nel vuoto. La distanza fisica fra i punti definisce la durata di ogni nota. L'interazione con questo strumento non è una performance, ma un'esplorazione consapevole dei limiti dell'udibile. Dbl-Click (o Tasto Destro) per isolare le note e creare pause, stacchi, respiri nel flusso continuo.
+                        Nello spazio acustico, la frequenza è posizione e il tempo è distanza. Componi le frequenze nel vuoto. La distanza fisica fra i punti definisce la durata di ogni nota. Dbl-Click o Tasto Destro per isolare le note.
                     </p>
                 </div>
                 <div class="btn-group">
@@ -585,10 +505,6 @@
                     <path class="traj-path" id="trajectory" d=""></path>
                     <g id="nodes-group"></g>
                 </svg>
-                <div class="hud-data">
-                    <span>FREQ: <em id="hud-freq">----</em> HZ</span>
-                    <span>LENG: <em id="hud-leng">-.--</em> S</span>
-                </div>
             </div>
         </section>
 
@@ -604,8 +520,9 @@
                 </div>
             </div>
             <div class="p2-bot">
-                <img src="C:\Users\C LAB R&D\Desktop\h2c8\ph.jpg" alt="Architectural space" class="p2-image" id="p2-image">
-                <p class="p2-statement">La distanza fisica diventa tempo acustico.</p>
+                <p class="p2-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
             </div>
         </section>
 
@@ -677,8 +594,6 @@
 
         const trajectoryPath = document.getElementById('trajectory');
         const nodesGroup = document.getElementById('nodes-group');
-        const hudFreq = document.getElementById('hud-freq');
-        const hudLeng = document.getElementById('hud-leng');
         const canvas = document.getElementById('canvas');
 
         let sequence = [], audioCtx = null;
@@ -687,16 +602,6 @@
         function yToFreq(y, h) {
             return FREQ_MIN * Math.pow(FREQ_MAX / FREQ_MIN, 1 - (y / h));
         }
-
-        function trackMouse(cx, cy) {
-            const r = canvas.getBoundingClientRect();
-            const x = cx - r.left, y = cy - r.top;
-            if (x < 0 || x > r.width || y < 0 || y > r.height) return;
-            hudFreq.textContent = Math.round(yToFreq(y, r.height)).toString().padStart(4, '0');
-        }
-
-        canvas.addEventListener('mousemove', e => trackMouse(e.clientX, e.clientY));
-        canvas.addEventListener('touchmove', e => trackMouse(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
 
         function updateTrajectory() {
             let d = "";
@@ -733,18 +638,18 @@
             lbl.setAttribute('x', x + 8);
             lbl.setAttribute('y', y + 4);
             lbl.setAttribute('class', 'node-lbl');
-            lbl.textContent = `${Math.round(freq)}Hz`;
+            
+            const node = { x, y, freq, duration: 0.5, dot, lbl, isDetached: false };
+            lbl.textContent = `${Math.round(freq)}Hz | ${node.duration.toFixed(2)}s`;
 
             nodesGroup.appendChild(dot);
             nodesGroup.appendChild(lbl);
-
-            const node = { x, y, freq, duration: 0.5, dot, isDetached: false };
 
             if (sequence.length > 0 && !sequence[sequence.length - 1].forceNextDetach) {
                 const prev = sequence[sequence.length - 1];
                 const dist = Math.hypot(x - prev.x, y - prev.y);
                 prev.duration = DUR_MIN + ((dist / md) * (DUR_MAX - DUR_MIN));
-                hudLeng.textContent = prev.duration.toFixed(2);
+                prev.lbl.textContent = `${Math.round(prev.freq)}Hz | ${prev.duration.toFixed(2)}s`;
             } else if (sequence.length > 0 && sequence[sequence.length - 1].forceNextDetach) {
                 node.isDetached = true;
                 sequence[sequence.length - 1].forceNextDetach = false;
@@ -775,8 +680,6 @@
             nodesGroup.replaceChildren();
             sequence = [];
             trajectoryPath.setAttribute('d', '');
-            hudFreq.textContent = '----';
-            hudLeng.textContent = '-.--';
         });
 
         function playTone(freq, dur, dot, delay) {
