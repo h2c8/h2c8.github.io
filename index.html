@@ -3,720 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absolute Instrument</title>
+    <title>Hōhō Studio - The Pure Matrix</title>
     <style>
         :root {
             --bg: #FFFFFF;
             --ink: #000000;
-            --border: 1px solid var(--ink);
-            --pad-lg: 3rem;
-            --pad-sm: 2rem;
+            --font-main: Helvetica, Arial, sans-serif;
+            --nav-h: 4rem;
+            --pad: 1.5rem;
         }
 
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* SCHERMO ASSOLUTO: 100dvh garantisce l'incastro perfetto su mobile */
+        body, html { 
+            background: var(--bg); color: var(--ink); 
+            font-family: var(--font-main); 
+            width: 100vw; height: 100dvh; 
+            overflow: hidden; /* MAI SCROLL GLOBALE */
+            display: flex; flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body, html {
-            background: var(--bg);
-            color: var(--ink);
-            font-family: Helvetica, Arial, sans-serif;
-            overflow: hidden;
-        }
-
+        /* 1. NAVBAR */
         .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            height: 4rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 var(--pad-lg);
-            background: var(--bg);
-            border-bottom: var(--border);
+            flex: 0 0 var(--nav-h); width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 var(--pad); border-bottom: 1px solid var(--ink);
+            background: var(--bg); z-index: 10;
         }
-
-        .nav-logo {
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            text-decoration: none;
-            color: var(--ink);
-            letter-spacing: -0.03em;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 2.5rem;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--ink);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-
-        .nav-links a:hover {
-            opacity: 0.5;
-        }
+        .nav-title { font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .nav-links { display: flex; gap: 0.5rem; }
 
         .btn-nav {
-            border: var(--border);
-            padding: 0.5rem 1.2rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.4rem 1.2rem; border: 1px solid var(--ink); border-radius: 50px;
+            background: transparent; color: var(--ink); font-size: 0.7rem;
+            text-transform: uppercase; font-weight: 600; text-decoration: none;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-nav:hover { background: var(--ink); color: var(--bg); }
+
+        /* 2. GRIGLIA FIBONACCI (Dashboard) */
+        .dashboard {
+            flex: 1; min-height: 0; /* IMPEDISCE ALLA GRIGLIA DI SFONDARE IL FOOTER */
+            display: grid; width: 100%;
+            background: var(--ink); gap: 1px; /* La linea nera a 1px */
+            
+            /* DESKTOP: Spirale Aurea (8:5:3:2) */
+            grid-template-columns: 8fr 2fr 3fr;
+            grid-template-rows: 5fr 3fr;
+        }
+
+        /* LE 4 POSIZIONI (Le Coordinate dello Spazio) */
+        .pos-1 { grid-column: 1 / 2; grid-row: 1 / 3; --scale: 1; }     
+        .pos-2 { grid-column: 2 / 4; grid-row: 1 / 2; --scale: 0.65; }  
+        .pos-3 { grid-column: 3 / 4; grid-row: 2 / 3; --scale: 0.45; }  
+        .pos-4 { grid-column: 2 / 3; grid-row: 2 / 3; --scale: 0.35; }  
+
+        /* CONTENITORI DEI LIVELLI (Motore Adattivo a 1px) */
+        .level {
+            display: flex; /* Flexbox garantisce che le celle interne si spartiscano lo spazio senza rompere il gap */
+            background: var(--ink); gap: 1px;
+            overflow: hidden; cursor: pointer; min-height: 0; min-width: 0;
+        }
+        .pos-1.level { cursor: default; }
+
+        /* Direzioni Flexbox basate sulla forma della Posizione (Adattamento Geometrico) */
+        .pos-1 { flex-direction: row; flex-wrap: wrap; }
+        .pos-1 .cell { flex: 1 1 45%; } /* Se ci sono più di 2 celle, vanno a capo formando una griglia 2x2 */
+        
+        .pos-2 { flex-direction: row; } /* Rettangolo Largo: Celle affiancate a colonna */
+        .pos-3 { flex-direction: column; } /* Quadrato Piccolo: Celle in riga orizzontale */
+        .pos-4 { flex-direction: column; } /* Rettangolo Alto: Celle in riga orizzontale */
+
+        /* LE CELLE INTERNE */
+        .cell {
+            flex: 1; /* Si dividono equamente lo spazio */
+            background: var(--bg);
+            padding: calc(var(--pad) * var(--scale));
+            display: flex; flex-direction: column; justify-content: space-between;
+            overflow: hidden; min-height: 0; min-width: 0;
+            transition: background 0.3s;
+        }
+        .level:not(.pos-1):hover .cell { background: #f9f9f9; }
+
+        /* VIEW TRANSITIONS */
+        #lvl-1 { view-transition-name: lvl-1; }
+        #lvl-2 { view-transition-name: lvl-2; }
+        #lvl-3 { view-transition-name: lvl-3; }
+        #lvl-4 { view-transition-name: lvl-4; }
+
+        /* TIPOGRAFIA SCALABILE (Solo Titolo, P, Bottone) */
+        .top { display: flex; flex-direction: column; overflow: hidden; }
+        .bottom { margin-top: auto; padding-top: calc(1rem * var(--scale)); align-self: flex-start; width: 100%;}
+
+        h2 { 
+            font-size: calc(1.5rem * var(--scale)); 
+            font-weight: 600; margin-bottom: calc(0.6rem * var(--scale)); 
+            letter-spacing: -0.02em; text-transform: uppercase; 
+            white-space: normal;
+        }
+        p { 
+            font-size: calc(1rem * var(--scale)); 
+            line-height: 1.4; opacity: 0.85; margin-bottom: 0; 
+            text-align: justify; hyphens: auto;
+            /* Taglia il testo colonna nei riquadri microscopici per non sfondare la griglia */
+            overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6;
+        }
+        
+        .title-giant { 
+            font-size: calc(4.5rem * var(--scale)); 
+            font-weight: 500; line-height: 0.95; letter-spacing: -0.04em; 
+            margin-bottom: calc(1rem * var(--scale)); 
+        }
+
+        /* PULSANTI DEFINITI E SCALABILI */
+        .btn-capsule {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: calc(max(6px, 0.5rem * var(--scale))) calc(max(12px, 1.2rem * var(--scale))); 
+            border: calc(max(1px, 2px * var(--scale))) solid var(--ink); 
             border-radius: 50px;
-            background: transparent;
-            color: var(--ink);
-            cursor: pointer;
-            transition: 0.2s;
+            background: var(--bg); color: var(--ink); 
+            font-size: calc(max(9px, 0.8rem * var(--scale)));
+            text-transform: uppercase; font-weight: 600; text-decoration: none;
+            cursor: pointer; transition: 0.2s;
         }
+        .btn-capsule:hover { background: var(--ink); color: var(--bg); }
+        .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
 
-        .btn-nav:hover {
-            background: var(--ink);
-            color: var(--bg);
+        /* 3. FOOTER AUDIO PLAYER */
+        .footer {
+            flex: 0 0 var(--nav-h); width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 var(--pad); border-top: 1px solid var(--ink);
+            background: var(--bg); gap: 1.5rem; z-index: 10;
         }
-
-        .burger {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
+        .play-btn { 
+            background: transparent; border: none; color: var(--ink);
+            font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+            cursor: pointer; letter-spacing: 0.05em; width: 60px; text-align: left;
         }
-
-        .burger span {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: var(--ink);
-            transition: transform 0.3s;
+        .progress-container { flex: 1; height: 2px; background: #e0e0e0; position: relative; cursor: pointer; }
+        .progress-bar { height: 100%; background: var(--ink); width: 0%; transition: width 0.1s linear; position: relative; }
+        .progress-bar::after {
+            content: ''; position: absolute; right: 0; top: 50%;
+            transform: translateY(-50%); width: 6px; height: 6px;
+            background: var(--ink); border-radius: 50%;
         }
+        .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
-        .burger.open span:nth-child(1) {
-            transform: translateY(7px) rotate(45deg);
-        }
-
-        .burger.open span:nth-child(2) {
-            transform: translateY(-7px) rotate(-45deg);
-        }
-
-        .mob-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 999;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .mob-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .mob-links {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            text-align: center;
-        }
-
-        .mob-links a {
-            font-size: 2.5rem;
-            text-decoration: none;
-            color: var(--ink);
-            text-transform: uppercase;
-            font-weight: 500;
-            letter-spacing: -0.03em;
-        }
-
-        .scroller {
-            margin-top: 4rem;
-            height: calc(100dvh - 4rem);
-            width: 100vw;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-        }
-
-        .snap-page {
-            height: calc(100dvh - 4rem);
-            width: 100%;
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
-            overflow: hidden;
-            position: relative;
-            background: var(--bg);
-            border-bottom: var(--border);
-            display: flex;
-        }
-
-        #p1 { flex-direction: row; }
-
-        .p1-cto {
-            flex: 0 0 50%;
-            border-right: var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            padding: var(--pad-lg);
-            text-align: left;
-        }
-
-        .p1-cto-top {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            max-width: 50ch;
-        }
-
-        .p1-h1 {
-            font-size: 4rem;
-            line-height: 0.95;
-            letter-spacing: -0.04em;
-            font-weight: 500;
-        }
-
-        .p1-desc {
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: flex-start;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            border: var(--border);
-            background: transparent;
-            color: var(--ink);
-            padding: 0.8rem 1.8rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--ink);
-            color: var(--bg);
-        }
-
-        .p1-canvas {
-            flex: 0 0 50%;
-            position: relative;
-            overflow: hidden;
-            touch-action: none;
-            background-color: var(--bg);
-            background-image: radial-gradient(circle, rgba(0,0,0,0.35) 1px, transparent 1px);
-            background-size: 2rem 2rem;
-            background-position: center;
-        }
-
-        #sonic-svg {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            color: var(--ink);
-        }
-
-        .traj-path {
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1.5px;
-            stroke-dasharray: 4;
-        }
-
-        .freq-dot {
-            fill: currentColor;
-            transition: transform 0.15s;
-        }
-
-        .freq-dot.active {
-            transform: scale(3.5);
-        }
-
-        .node-lbl {
-            font-weight: 600;
-            font-size: 9px;
-            fill: currentColor;
-            white-space: nowrap;
-        }
-
-        #p2 { flex-direction: column; }
-
-        .p2-top {
-            flex: 0 0 25%;
-            border-bottom: var(--border);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 0.5rem;
-            overflow: hidden;
-            padding: 0 var(--pad-lg);
-        }
-
-        .marquee-track {
-            display: flex;
-            width: max-content;
-            animation: scrl-l 40s linear infinite;
-        }
-
-        .marquee-track.rev {
-            animation: scrl-r 40s linear infinite;
-        }
-
-        .marquee-track span {
-            font-size: 1.5rem;
-            font-weight: 400;
-            text-transform: uppercase;
-            padding-right: 2rem;
-            letter-spacing: 0.05em;
-        }
-
-        @keyframes scrl-l {
-            to { transform: translateX(-50%); }
-        }
-
-        @keyframes scrl-r {
-            0% { transform: translateX(-50%); }
-            100% { transform: translateX(0); }
-        }
-
-        .p2-bot {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            padding: var(--pad-lg);
-        }
-
-        .p2-text {
-            font-size: 0.9rem;
-            font-weight: 400;
-            line-height: 1.8;
-            text-align: left;
-            max-width: 70ch;
-        }
-
-        #p3 { flex-direction: column; }
-
-        .p3-top {
-            flex: 0 0 50%;
-            border-bottom: var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--pad-lg);
-        }
-
-        .p3-title {
-            font-size: 3rem;
-            font-weight: 400;
-            letter-spacing: -0.04em;
-            line-height: 0.95;
-            text-align: center;
-        }
-
-        .p3-bot {
-            flex: 1;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .p3-col {
-            flex: 1;
-            padding: var(--pad-lg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .p3-col:first-child {
-            border-right: var(--border);
-        }
-
-        .p3-txt {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            max-width: 45ch;
-        }
-
-        #p4 {
-            display: grid;
-            grid-template-columns: 50% 50%;
-            grid-template-rows: 50% 50%;
-        }
-
-        .p4-cell {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: var(--pad-lg);
-        }
-
-        .p4-cell:nth-child(1) {
-            border-right: var(--border);
-            border-bottom: var(--border);
-        }
-
-        .p4-cell:nth-child(2) {
-            border-bottom: var(--border);
-        }
-
-        .p4-cell:nth-child(3) {
-            border-right: var(--border);
-        }
-
-        .p4-cell:nth-child(4) {
-            background: var(--ink);
-            color: var(--bg);
-            text-decoration: none;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .p4-cell:nth-child(4):hover {
-            background: var(--bg);
-            color: var(--ink);
-        }
-
-        .p4-h3 {
-            font-size: 2rem;
-            font-weight: 400;
-            letter-spacing: -0.03em;
-            line-height: 1;
-        }
-
-        .p4-link {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--ink);
-            text-decoration: none;
-            margin-top: 0.5rem;
-            display: block;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .p4-text {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
+        /* ------------------------------------------------ */
+        /* RESPONSIVE MOBILE (< 900px) - MOSAICO ASSOLUTO   */
+        /* ------------------------------------------------ */
         @media (max-width: 900px) {
-            :root {
-                --pad-lg: 2rem;
+            :root { --nav-h: 3.5rem; --pad: 1rem; }
+            .nav-links { display: none; } 
+            
+            /* La matrice diventa un Mondrian 4x6 perfetto per riempire il 100dvh residuo */
+            .dashboard {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(6, 1fr);
             }
+            
+            /* GEOMETRIA MOBILE ASIMMETRICA (Addio blocchi noiosi verticali!) */
+            .pos-1 { grid-column: 1 / 5; grid-row: 1 / 4; --scale: 0.85; } /* Metà Superiore (4x3) */
+            .pos-2 { grid-column: 1 / 3; grid-row: 4 / 7; --scale: 0.60; } /* Basso Sinistra (2x3 Alto) */
+            .pos-3 { grid-column: 3 / 5; grid-row: 4 / 6; --scale: 0.50; } /* Basso Destra (2x2 Quadro) */
+            .pos-4 { grid-column: 3 / 5; grid-row: 6 / 7; --scale: 0.40; } /* Basso Destra (2x1 Largo) */
 
-            .nav-links { display: none; }
-            .burger { display: flex; }
-            #p1 { flex-direction: column; }
-            .p1-cto {
-                flex: 0 0 45%;
-                border-right: none;
-                border-bottom: var(--border);
-                justify-content: flex-start;
-                padding: var(--pad-lg);
-            }
-            .p1-h1 { font-size: 2.8rem; }
-            .p1-canvas { flex: 1; }
-            #p3 { flex-direction: column; }
-            .p3-top { flex: 0 0 35%; }
-            .p3-title { font-size: 2.8rem; }
-            .p3-bot { flex-direction: column; }
-            .p3-col {
-                flex: 1;
-                border-right: none;
-                border-bottom: var(--border);
-                padding: var(--pad-lg);
-                justify-content: center;
-            }
-            .p3-col:last-child { border-bottom: none; }
+            /* Adattamento direzioni Flexbox per assecondare i nuovi volumi mobile */
+            .pos-1 { flex-direction: row; }
+            .pos-2 { flex-direction: column; }
+            .pos-3 { flex-direction: column; }
+            .pos-4 { flex-direction: row; }
+            
+            .title-giant { font-size: 2.5rem; margin-bottom: 0.5rem; }
+            h2 { margin-bottom: 0.2rem; }
+            
+            /* Su mobile tagliamo i paragrafi nei riquadri piccoli per mantenere la leggibilità pulita */
+            .level:not(.pos-1) p { display: none; }
+            
+            .footer { padding: 0 1rem; gap: 1rem; }
+            .play-btn { width: auto; }
+            .time-display { width: auto; }
         }
     </style>
 </head>
 <body>
-    <div class="mob-overlay" id="mob-overlay">
-        <nav class="mob-links">
-            <a href="#p1" class="mob-link nav-jump">Strumento</a>
-            <a href="#p2" class="mob-link nav-jump">Manifesto</a>
-            <a href="#p3" class="mob-link nav-jump">Progetto</a>
-            <a href="#p4" class="mob-link nav-jump">Contatti</a>
-        </nav>
-    </div>
 
     <nav class="nav">
-        <a href="#p1" class="nav-logo nav-jump">Studio.</a>
+        <div class="nav-title">方法 Hōhō Studio</div>
         <div class="nav-links">
-            <a href="#p1" class="nav-jump">Strumento</a>
-            <a href="#p2" class="nav-jump">Manifesto</a>
-            <a href="#p3" class="nav-jump">Progetto</a>
-            <a href="#p4" class="btn-nav nav-jump">Apply Now</a>
+            <a href="#" class="btn-nav" data-target="lvl-1">State</a>
+            <a href="#" class="btn-nav" data-target="lvl-2">Dev</a>
+            <a href="#" class="btn-nav" data-target="lvl-3">Media</a>
+            <a href="#" class="btn-nav" data-target="lvl-4">Info</a>
         </div>
-        <button class="burger" id="burger">
-            <span></span><span></span>
-        </button>
     </nav>
 
-    <div class="scroller" id="scroller">
-        <section class="snap-page" id="p1">
-            <div class="p1-cto">
-                <div class="p1-cto-top">
-                    <h1 class="p1-h1">How to choose <br>in the infinity?</h1>
-                    <p class="p1-desc">
-                        Nello spazio acustico, la frequenza è posizione e il tempo è distanza. Componi le frequenze nel vuoto. La distanza fisica fra i punti definisce la durata di ogni nota. Dbl-Click o Tasto Destro per isolare le note.
-                    </p>
+    <main class="dashboard">
+        
+        <div id="lvl-1" class="level pos-1">
+            <div class="cell">
+                <div class="top">
+                    <h1 class="title-giant">How To Choose<br>In The Infinity?</h1>
+                    <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
                 </div>
-                <div class="btn-group">
-                    <button class="btn" id="btn-play">Play Sequence</button>
-                    <button class="btn" id="btn-clear">Clear</button>
-                </div>
+                <div class="bottom"><button class="btn-capsule">Enter Process</button></div>
             </div>
-            <div class="p1-canvas" id="canvas">
-                <svg id="sonic-svg">
-                    <path class="traj-path" id="trajectory" d=""></path>
-                    <g id="nodes-group"></g>
-                </svg>
-            </div>
-        </section>
+        </div>
 
-        <section class="snap-page" id="p2">
-            <div class="p2-top">
-                <div class="marquee-track">
-                    <span>Architettura del Vuoto — Sintesi Pura — </span>
-                    <span>Architettura del Vuoto — Sintesi Pura — </span>
+        <div id="lvl-2" class="level pos-2">
+            <div class="cell">
+                <div class="top">
+                    <h2>Q-cycle</h2>
+                    <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
-                <div class="marquee-track rev">
-                    <span>Web Audio API — Parametric Design — </span>
-                    <span>Web Audio API — Parametric Design — </span>
+                <div class="bottom"><button class="btn-capsule">GitHub</button></div>
+            </div>
+            <div class="cell">
+                <div class="top">
+                    <h2>Q-Room</h2>
+                    <p>Calcolo dell'ambiente spaziale fisico e posizionamento algoritmico delle sorgenti acustiche per eliminare i nodi.</p>
                 </div>
+                <div class="bottom"><button class="btn-capsule">Demo</button></div>
             </div>
-            <div class="p2-bot">
-                <p class="p2-text">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-            </div>
-        </section>
+        </div>
 
-        <section class="snap-page" id="p3">
-            <div class="p3-top">
-                <h2 class="p3-title">Architettura Sottrattiva.</h2>
-            </div>
-            <div class="p3-bot">
-                <div class="p3-col">
-                    <p class="p3-txt">Nessun colore, nessuna immagine. Utilizziamo esclusivamente il calcolo delle onde sinusoidali attraverso le Web Audio API. L'utente è costretto a confrontarsi con il vuoto.</p>
+        <div id="lvl-3" class="level pos-3">
+            <div class="cell">
+                <div class="top">
+                    <h2>Site Specific</h2>
+                    <p>Registrazione binaurale dalla performance live. Si consiglia l'uso di cuffie per l'ascolto.</p>
                 </div>
-                <div class="p3-col">
-                    <p class="p3-txt">La griglia invisibile definisce un limite parametrico: lo spettro delle frequenze udibili sull'asse verticale, e il limite di decadimento del suono sulla lunghezza vettoriale.</p>
+                <div class="bottom">
+                    <div class="player-inner">
+                        <button class="btn-capsule" onclick="document.getElementById('play-btn').click();">Play Audio</button>
+                        <button class="btn-capsule">Buy</button>
+                    </div>
                 </div>
             </div>
-        </section>
+            <div class="cell">
+                <div class="top">
+                    <h2>Spatial Setup</h2>
+                    <p>Mappatura e coordinate spaziali dei nodi acustici critici.</p>
+                </div>
+                <div class="bottom"><button class="btn-capsule">Log</button></div>
+            </div>
+            <div class="cell">
+                <div class="top">
+                    <h2>Hardware</h2>
+                    <p>Diagramma del routing del segnale analogico.</p>
+                </div>
+                <div class="bottom"><button class="btn-capsule">Schema</button></div>
+            </div>
+        </div>
 
-        <section class="snap-page" id="p4">
-            <div class="p4-cell">
-                <h3 class="p4-h3">Studio.</h3>
-                <div style="margin-top:auto">
-                    <span class="p4-text">© 2026 Milano</span>
-                </div>
+        <div id="lvl-4" class="level pos-4">
+            <div class="cell">
+                <div class="top"><h2>Press</h2><p>Release notes and articles.</p></div>
+                <div class="bottom"><button class="btn-capsule">Read</button></div>
             </div>
-            <div class="p4-cell">
-                <h3 class="p4-h3">Details</h3>
-                <div style="margin-top:auto">
-                    <span class="p4-text">Sonic Architecture<br>Interactive Residency</span>
-                </div>
+            <div class="cell">
+                <div class="top"><h2>Credits</h2><p>Tech specs and engineers.</p></div>
+                <div class="bottom"><button class="btn-capsule">View</button></div>
             </div>
-            <div class="p4-cell">
-                <h3 class="p4-h3">Network</h3>
-                <div style="margin-top:auto">
-                    <a href="#" class="p4-link">Instagram</a>
-                    <a href="#" class="p4-link">Twitter / X</a>
-                </div>
+            <div class="cell">
+                <div class="top"><h2>Partners</h2><p>Cultural institutions.</p></div>
+                <div class="bottom"><button class="btn-capsule">List</button></div>
             </div>
-            <a href="mailto:hello@studio.com" class="p4-cell" style="border:none;">
-                <h3 class="p4-h3" style="font-size: 2.5rem; text-align: center;">Apply Now</h3>
-            </a>
-        </section>
-    </div>
+            <div class="cell">
+                <div class="top"><h2>Contact</h2><p>Join the acoustic research.</p></div>
+                <div class="bottom"><button class="btn-capsule">Mail</button></div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <audio id="audio-track" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="metadata"></audio>
+        <button id="play-btn" class="play-btn">Play</button>
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="time-display" id="time-display">0:00 / 0:00</div>
+    </footer>
 
     <script>
-        const scroller = document.getElementById('scroller');
-        
-        document.querySelectorAll('.nav-jump').forEach(link => {
-            link.addEventListener('click', function(e) {
+        // ROTAZIONE A SPIRALE
+        const navLinks = document.querySelectorAll('.btn-nav');
+        const levels = document.querySelectorAll('.level');
+
+        function swapToMain(targetLevelId) {
+            const targetLevel = document.getElementById(targetLevelId);
+            if (targetLevel.classList.contains('pos-1')) return;
+
+            const currentMain = document.querySelector('.pos-1');
+            const targetPosClass = Array.from(targetLevel.classList).find(c => c.startsWith('pos-'));
+
+            const performSwap = () => {
+                currentMain.classList.remove('pos-1');
+                targetLevel.classList.remove(targetPosClass);
+                
+                currentMain.classList.add(targetPosClass);
+                targetLevel.classList.add('pos-1');
+            };
+
+            if (document.startViewTransition) {
+                document.startViewTransition(performSwap);
+            } else {
+                performSwap(); 
+            }
+        }
+
+        // Click sulla Navbar
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                scroller.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+                swapToMain(link.getAttribute('data-target'));
             });
         });
 
-        const burger = document.getElementById('burger');
-        const mobOverlay = document.getElementById('mob-overlay');
-        
-        function toggleMenu() {
-            burger.classList.toggle('open');
-            mobOverlay.classList.toggle('open');
-        }
-
-        burger.addEventListener('click', toggleMenu);
-        document.querySelectorAll('.mob-link').forEach(l => {
-            l.addEventListener('click', () => {
-                if(mobOverlay.classList.contains('open')) toggleMenu();
+        // Click diretto sulle miniature
+        levels.forEach(level => {
+            level.addEventListener('click', (e) => {
+                // Previene la rotazione se clicchi un pulsante
+                if (e.target.closest('.btn-capsule')) return;
+                swapToMain(level.id);
             });
         });
 
-        const trajectoryPath = document.getElementById('trajectory');
-        const nodesGroup = document.getElementById('nodes-group');
-        const canvas = document.getElementById('canvas');
+        // AUDIO PLAYER GLOBALE
+        const audio = document.getElementById('audio-track');
+        const playBtn = document.getElementById('play-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const timeDisplay = document.getElementById('time-display');
 
-        let sequence = [], audioCtx = null;
-        const FREQ_MIN = 40, FREQ_MAX = 15000, DUR_MIN = 0.05, DUR_MAX = 2.0;
-
-        function yToFreq(y, h) {
-            return FREQ_MIN * Math.pow(FREQ_MAX / FREQ_MIN, 1 - (y / h));
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
-        function updateTrajectory() {
-            let d = "";
-            sequence.forEach((p, i) => {
-                if (i === 0 || p.isDetached) d += `M ${p.x},${p.y} `;
-                else d += `L ${p.x},${p.y} `;
-            });
-            trajectoryPath.setAttribute('d', d);
-        }
-
-        function detachLine() {
-            if(sequence.length > 0) {
-                sequence[sequence.length - 1].forceNextDetach = true;
-                canvas.style.opacity = '0.5';
-                setTimeout(() => canvas.style.opacity = '1', 150);
-            }
-        }
-
-        function addNode(cx, cy) {
-            const r = canvas.getBoundingClientRect();
-            const md = Math.hypot(r.width, r.height);
-            const x = cx - r.left, y = cy - r.top;
-            const freq = yToFreq(y, r.height);
-
-            const ns = 'http://www.w3.org/2000/svg';
-            const dot = document.createElementNS(ns, 'circle');
-            dot.setAttribute('cx', x);
-            dot.setAttribute('cy', y);
-            dot.setAttribute('r', 3.5);
-            dot.setAttribute('class', 'freq-dot');
-            dot.style.transformOrigin = `${x}px ${y}px`;
-
-            const lbl = document.createElementNS(ns, 'text');
-            lbl.setAttribute('x', x + 8);
-            lbl.setAttribute('y', y + 4);
-            lbl.setAttribute('class', 'node-lbl');
-            
-            const node = { x, y, freq, duration: 0.5, dot, lbl, isDetached: false };
-            lbl.textContent = `${Math.round(freq)}Hz, ${node.duration.toFixed(2)}s`;
-
-            nodesGroup.appendChild(dot);
-            nodesGroup.appendChild(lbl);
-
-            if (sequence.length > 0 && !sequence[sequence.length - 1].forceNextDetach) {
-                const prev = sequence[sequence.length - 1];
-                const dist = Math.hypot(x - prev.x, y - prev.y);
-                prev.duration = DUR_MIN + ((dist / md) * (DUR_MAX - DUR_MIN));
-                prev.lbl.textContent = `${Math.round(prev.freq)}Hz, ${prev.duration.toFixed(2)}s`;
-            } else if (sequence.length > 0 && sequence[sequence.length - 1].forceNextDetach) {
-                node.isDetached = true;
-                sequence[sequence.length - 1].forceNextDetach = false;
-            }
-
-            sequence.push(node);
-            updateTrajectory();
-        }
-
-        canvas.addEventListener('click', e => addNode(e.clientX, e.clientY));
-        canvas.addEventListener('touchend', e => {
-            if(e.changedTouches.length === 1) {
-                e.preventDefault();
-                addNode(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-            }
-        }, {passive: false});
-
-        canvas.addEventListener('contextmenu', e => { e.preventDefault(); detachLine(); });
-        canvas.addEventListener('dblclick', e => { e.preventDefault(); detachLine(); });
-        canvas.addEventListener('touchstart', e => {
-            if(e.touches.length > 1) {
-                e.preventDefault();
-                detachLine();
-            }
-        }, {passive: false});
-
-        document.getElementById('btn-clear').addEventListener('click', () => {
-            nodesGroup.replaceChildren();
-            sequence = [];
-            trajectoryPath.setAttribute('d', '');
+        audio.addEventListener('loadedmetadata', () => {
+            timeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
         });
 
-        function playTone(freq, dur, dot, delay) {
-            const t = audioCtx.currentTime + delay;
-            const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, t);
-            g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(0.4, t + 0.02);
-            g.gain.setValueAtTime(0.4, Math.max(t + 0.02, t + dur - 0.02));
-            g.gain.linearRampToValueAtTime(0, t + dur);
-            osc.connect(g).connect(audioCtx.destination);
-            osc.start(t);
-            osc.stop(t + dur);
-            setTimeout(() => {
-                dot.classList.add('active');
-                setTimeout(() => dot.classList.remove('active'), dur * 1000);
-            }, delay * 1000);
-        }
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = 'Pause';
+            } else {
+                audio.pause();
+                playBtn.textContent = 'Play';
+            }
+        });
 
-        document.getElementById('btn-play').addEventListener('click', function() {
-            if (sequence.length === 0) return;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const btn = this;
-            btn.style.opacity = '0.5';
-            btn.style.pointerEvents = 'none';
-            let acc = 0;
-            sequence.forEach(p => {
-                playTone(p.freq, p.duration, p.dot, acc);
-                acc += p.duration;
-            });
-            setTimeout(() => {
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto';
-            }, acc * 1000);
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+            timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        });
+
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
         });
     </script>
 </body>
