@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hōhō Studio - The Pure Matrix</title>
+    <title>Hōhō Studio - The Pure Spiral</title>
     <style>
         :root {
             --bg: #FFFFFF;
@@ -15,7 +15,7 @@
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* SCHERMO ASSOLUTO */
+        /* SCHERMO ASSOLUTO: 100dvh per ancoraggio perfetto su mobile */
         body, html { 
             background: var(--bg); color: var(--ink); 
             font-family: var(--font-main); 
@@ -44,46 +44,56 @@
         }
         .btn-nav:hover { background: var(--ink); color: var(--bg); }
 
-        /* 2. GRIGLIA FIBONACCI */
+        /* 2. GRIGLIA FIBONACCI (Dashboard) */
         .dashboard {
             flex: 1; min-height: 0; 
             display: grid; width: 100%;
-            background: var(--ink); gap: 1px; 
+            background: var(--ink); gap: 1px;
+            
+            /* DESKTOP: Spirale Aurea (8:5:3:2) */
             grid-template-columns: 8fr 2fr 3fr;
             grid-template-rows: 5fr 3fr;
         }
 
+        /* LE 4 POSIZIONI DELLA SPIRALE E SCALE */
         .pos-1 { grid-column: 1 / 2; grid-row: 1 / 3; --scale: 1; }     
         .pos-2 { grid-column: 2 / 4; grid-row: 1 / 2; --scale: 0.65; }  
         .pos-3 { grid-column: 3 / 4; grid-row: 2 / 3; --scale: 0.45; }  
         .pos-4 { grid-column: 2 / 3; grid-row: 2 / 3; --scale: 0.35; }  
 
+        /* CONTENITORI DEI LIVELLI (Flexbox interno per dividere lo spazio) */
         .level {
-            display: grid; background: var(--ink); gap: 1px;
-            overflow: hidden; cursor: pointer;
+            display: flex; background: var(--ink); gap: 1px;
+            overflow: hidden; cursor: pointer; min-height: 0; min-width: 0;
         }
         .pos-1.level { cursor: default; }
 
-        #lvl-1 { grid-template-columns: 1fr; }
-        #lvl-2 { grid-template-columns: 1fr 1fr; }
-        #lvl-3 { grid-template-rows: 1fr 1fr 1fr; }
-        #lvl-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        /* Adattamento geometrico delle celle interne in base allo slot */
+        .pos-1 { flex-direction: row; flex-wrap: wrap; }
+        .pos-1 .cell { flex: 1 1 45%; } /* Nel blocco grande, se ci sono più celle formano una griglia */
+        .pos-2 { flex-direction: row; } /* Rettangolo Largo: Celle affiancate */
+        .pos-3 { flex-direction: column; } /* Quadrato: Celle impilate */
+        .pos-4 { flex-direction: column; } /* Rettangolo Alto: Celle impilate */
 
+        /* LE CELLE INTERNE */
+        .cell {
+            flex: 1; /* Dividono equamente il contenitore padre */
+            background: var(--bg);
+            padding: calc(var(--pad) * var(--scale));
+            display: flex; flex-direction: column; justify-content: space-between;
+            overflow-y: auto; scrollbar-width: none; min-height: 0; min-width: 0;
+            transition: background 0.3s;
+        }
+        .level:not(.pos-1):hover .cell { background: #f9f9f9; }
+
+        /* ANIMAZIONI FLUIDE NATIVE */
         #lvl-1 { view-transition-name: lvl-1; }
         #lvl-2 { view-transition-name: lvl-2; }
         #lvl-3 { view-transition-name: lvl-3; }
         #lvl-4 { view-transition-name: lvl-4; }
 
-        .cell {
-            background: var(--bg);
-            padding: calc(var(--pad) * var(--scale));
-            display: flex; flex-direction: column; justify-content: space-between;
-            overflow-y: auto; scrollbar-width: none;
-            transition: background 0.3s;
-        }
-        .level:not(.pos-1):hover .cell { background: #f9f9f9; }
-
-        .top { display: flex; flex-direction: column; }
+        /* TIPOGRAFIA PURA (Scalabile) */
+        .top { display: flex; flex-direction: column; overflow: hidden; }
         .bottom { margin-top: auto; padding-top: calc(1rem * var(--scale)); align-self: flex-start; width: 100%;}
 
         h2 { 
@@ -95,21 +105,24 @@
             font-size: calc(1rem * var(--scale)); 
             line-height: 1.4; opacity: 0.85; margin-bottom: 0; 
             text-align: justify; hyphens: auto;
+            /* Protezione anti-overflow per le celle più piccole */
+            overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6;
         }
         
         .title-giant { 
             font-size: calc(4.5rem * var(--scale)); 
             font-weight: 500; line-height: 0.95; letter-spacing: -0.04em; 
-            margin-bottom: calc(1rem * var(--scale)); 
+            margin-bottom: calc(1.5rem * var(--scale)); 
         }
 
+        /* PULSANTI DEFINITI */
         .btn-capsule {
             display: inline-flex; align-items: center; justify-content: center;
-            padding: calc(max(4px, 0.5rem * var(--scale))) calc(max(10px, 1.2rem * var(--scale))); 
+            padding: calc(max(6px, 0.5rem * var(--scale))) calc(max(12px, 1.2rem * var(--scale))); 
             border: calc(max(1px, 2px * var(--scale))) solid var(--ink); 
             border-radius: 50px;
             background: var(--bg); color: var(--ink); 
-            font-size: calc(max(8px, 0.8rem * var(--scale)));
+            font-size: calc(max(9px, 0.8rem * var(--scale)));
             text-transform: uppercase; font-weight: 600; text-decoration: none;
             cursor: pointer; transition: 0.2s;
         }
@@ -123,9 +136,8 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 1.5rem; 
             border-top: 1px solid var(--ink);
-            /* LINEA INFERIORE E SAFE AREA PER MOBILE */
-            border-bottom: 1px solid var(--ink);
-            padding-bottom: env(safe-area-inset-bottom);
+            border-bottom: 1px solid var(--ink); /* Linea richiesta */
+            padding-bottom: env(safe-area-inset-bottom); /* Protezione UI Mobile */
             background: var(--bg); gap: 1.5rem; z-index: 10;
         }
         .play-btn { 
@@ -143,25 +155,29 @@
         .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
         /* ------------------------------------------------ */
-        /* RESPONSIVE MOBILE (< 900px) */
+        /* RESPONSIVE MOBILE (< 900px) - MOSAICO ASIMMETRICO*/
         /* ------------------------------------------------ */
         @media (max-width: 900px) {
-            :root { --nav-h: 3.5rem; --pad: 1rem; }
+            :root { --nav-h: 3.5rem; --pad: 1.2rem; }
             .nav-links { display: none; } 
             
+            /* Ripristinato il mosaico non-lineare 4x6 (non una pila verticale) */
             .dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: 6fr 2fr 2fr 1.5fr; 
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(6, 1fr);
             }
             
-            .pos-1 { grid-column: 1 / 2; grid-row: 1 / 2; --scale: 0.9; }
-            .pos-2 { grid-column: 1 / 2; grid-row: 2 / 3; --scale: 0.6; }
-            .pos-3 { grid-column: 1 / 2; grid-row: 3 / 4; --scale: 0.55; }
-            .pos-4 { grid-column: 1 / 2; grid-row: 4 / 5; --scale: 0.45; }
+            /* Incastro asimmetrico delle posizioni */
+            .pos-1 { grid-column: 1 / 5; grid-row: 1 / 4; --scale: 0.85; flex-direction: row; } 
+            .pos-2 { grid-column: 1 / 3; grid-row: 4 / 7; --scale: 0.60; flex-direction: column; } 
+            .pos-3 { grid-column: 3 / 5; grid-row: 4 / 6; --scale: 0.50; flex-direction: column; } 
+            .pos-4 { grid-column: 3 / 5; grid-row: 6 / 7; --scale: 0.40; flex-direction: row; } 
 
-            .level:not(.pos-1) { grid-template-columns: repeat(auto-fit, minmax(10px, 1fr)) !important; grid-template-rows: 1fr !important; }
+            .title-giant { font-size: 2.5rem; margin-bottom: 0.5rem; }
+            h2 { margin-bottom: 0.3rem; }
             
-            .zone-1 .title-giant { font-size: 2.8rem; }
+            /* I testi spariscono nelle celle piccole su mobile per mantenere l'estetica a griglia */
+            .level:not(.pos-1) p { display: none; }
             
             .footer { padding: 0 1rem; padding-bottom: max(env(safe-area-inset-bottom), 1px); gap: 1rem; }
             .play-btn { width: auto; }
