@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hōhō Studio - The Pure Spiral</title>
+    <title>Hōhō Studio - The Raster Matrix</title>
     <style>
         :root {
             --bg: #FFFFFF;
@@ -15,7 +15,6 @@
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* SCHERMO ASSOLUTO: 100dvh per ancoraggio perfetto su mobile */
         body, html { 
             background: var(--bg); color: var(--ink); 
             font-family: var(--font-main); 
@@ -44,55 +43,77 @@
         }
         .btn-nav:hover { background: var(--ink); color: var(--bg); }
 
-        /* 2. GRIGLIA FIBONACCI (Dashboard) */
+        /* 2. GRIGLIA FIBONACCI */
         .dashboard {
             flex: 1; min-height: 0; 
             display: grid; width: 100%;
             background: var(--ink); gap: 1px;
-            
-            /* DESKTOP: Spirale Aurea (8:5:3:2) */
             grid-template-columns: 8fr 2fr 3fr;
             grid-template-rows: 5fr 3fr;
         }
 
-        /* LE 4 POSIZIONI DELLA SPIRALE E SCALE */
         .pos-1 { grid-column: 1 / 2; grid-row: 1 / 3; --scale: 1; }     
         .pos-2 { grid-column: 2 / 4; grid-row: 1 / 2; --scale: 0.65; }  
         .pos-3 { grid-column: 3 / 4; grid-row: 2 / 3; --scale: 0.45; }  
         .pos-4 { grid-column: 2 / 3; grid-row: 2 / 3; --scale: 0.35; }  
 
-        /* CONTENITORI DEI LIVELLI (Flexbox interno per dividere lo spazio) */
         .level {
             display: flex; background: var(--ink); gap: 1px;
             overflow: hidden; cursor: pointer; min-height: 0; min-width: 0;
         }
         .pos-1.level { cursor: default; }
 
-        /* Adattamento geometrico delle celle interne in base allo slot */
         .pos-1 { flex-direction: row; flex-wrap: wrap; }
-        .pos-1 .cell { flex: 1 1 45%; } /* Nel blocco grande, se ci sono più celle formano una griglia */
-        .pos-2 { flex-direction: row; } /* Rettangolo Largo: Celle affiancate */
-        .pos-3 { flex-direction: column; } /* Quadrato: Celle impilate */
-        .pos-4 { flex-direction: column; } /* Rettangolo Alto: Celle impilate */
+        .pos-1 .cell { flex: 1 1 45%; } 
+        .pos-2 { flex-direction: row; } 
+        .pos-3 { flex-direction: column; } 
+        .pos-4 { flex-direction: column; } 
 
-        /* LE CELLE INTERNE */
-        .cell {
-            flex: 1; /* Dividono equamente il contenitore padre */
-            background: var(--bg);
-            padding: calc(var(--pad) * var(--scale));
-            display: flex; flex-direction: column; justify-content: space-between;
-            overflow-y: auto; scrollbar-width: none; min-height: 0; min-width: 0;
-            transition: background 0.3s;
-        }
-        .level:not(.pos-1):hover .cell { background: #f9f9f9; }
-
-        /* ANIMAZIONI FLUIDE NATIVE */
         #lvl-1 { view-transition-name: lvl-1; }
         #lvl-2 { view-transition-name: lvl-2; }
         #lvl-3 { view-transition-name: lvl-3; }
         #lvl-4 { view-transition-name: lvl-4; }
 
-        /* TIPOGRAFIA PURA (Scalabile) */
+        /* CELLE BASE */
+        .cell {
+            flex: 1; 
+            background: var(--bg);
+            color: var(--ink);
+            padding: calc(var(--pad) * var(--scale));
+            display: flex; flex-direction: column; justify-content: space-between;
+            overflow-y: auto; scrollbar-width: none; min-height: 0; min-width: 0;
+            /* Estetica Raster-Noton: ZERO transizioni morbide. Booleano, immediato. */
+            transition: none; 
+        }
+
+        /* INVERSIONE DI MASSA BOOLEANA (Niente finti bordi o rettangoli) */
+        @media (hover: hover) {
+            .level:not(.pos-1) .cell:hover {
+                background-color: var(--ink); 
+                color: var(--bg);
+            }
+            .level:not(.pos-1) .cell:hover .btn-capsule {
+                border-color: var(--bg);
+                color: var(--bg);
+            }
+            .level:not(.pos-1) .cell:hover .btn-capsule:hover {
+                background-color: var(--bg);
+                color: var(--ink);
+            }
+        }
+
+        @media (hover: none) {
+            .level:not(.pos-1) .cell:active {
+                background-color: var(--ink);
+                color: var(--bg);
+            }
+            .level:not(.pos-1) .cell:active .btn-capsule {
+                border-color: var(--bg);
+                color: var(--bg);
+            }
+        }
+
+        /* TIPOGRAFIA */
         .top { display: flex; flex-direction: column; overflow: hidden; }
         .bottom { margin-top: auto; padding-top: calc(1rem * var(--scale)); align-self: flex-start; width: 100%;}
 
@@ -105,7 +126,6 @@
             font-size: calc(1rem * var(--scale)); 
             line-height: 1.4; opacity: 0.85; margin-bottom: 0; 
             text-align: justify; hyphens: auto;
-            /* Protezione anti-overflow per le celle più piccole */
             overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6;
         }
         
@@ -115,29 +135,29 @@
             margin-bottom: calc(1.5rem * var(--scale)); 
         }
 
-        /* PULSANTI DEFINITI */
+        /* PULSANTI (Rigidi a 1px) */
         .btn-capsule {
             display: inline-flex; align-items: center; justify-content: center;
             padding: calc(max(6px, 0.5rem * var(--scale))) calc(max(12px, 1.2rem * var(--scale))); 
-            border: calc(max(1px, 2px * var(--scale))) solid var(--ink); 
+            border: 1px solid currentColor; 
             border-radius: 50px;
-            background: var(--bg); color: var(--ink); 
+            background: transparent; color: inherit; 
             font-size: calc(max(9px, 0.8rem * var(--scale)));
             text-transform: uppercase; font-weight: 600; text-decoration: none;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: background 0.1s, color 0.1s;
         }
-        .btn-capsule:hover { background: var(--ink); color: var(--bg); }
-
+        
+        .level .btn-capsule:hover { background: var(--ink); color: var(--bg); }
         .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
 
-        /* 3. FOOTER AUDIO PLAYER */
+        /* FOOTER AUDIO PLAYER */
         .footer {
             flex: 0 0 var(--nav-h); width: 100%;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 1.5rem; 
             border-top: 1px solid var(--ink);
-            border-bottom: 1px solid var(--ink); /* Linea richiesta */
-            padding-bottom: env(safe-area-inset-bottom); /* Protezione UI Mobile */
+            border-bottom: 1px solid var(--ink);
+            padding-bottom: env(safe-area-inset-bottom);
             background: var(--bg); gap: 1.5rem; z-index: 10;
         }
         .play-btn { 
@@ -145,7 +165,7 @@
             font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
             cursor: pointer; letter-spacing: 0.05em; width: 60px; text-align: left;
         }
-        .progress-container { flex: 1; height: 2px; background: #e0e0e0; position: relative; cursor: pointer; }
+        .progress-container { flex: 1; height: 1px; background: #e0e0e0; position: relative; cursor: pointer; }
         .progress-bar { height: 100%; background: var(--ink); width: 0%; transition: width 0.1s linear; position: relative; }
         .progress-bar::after {
             content: ''; position: absolute; right: 0; top: 50%;
@@ -154,20 +174,12 @@
         }
         .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
-        /* ------------------------------------------------ */
-        /* RESPONSIVE MOBILE (< 900px) - MOSAICO ASIMMETRICO*/
-        /* ------------------------------------------------ */
+        /* MOBILE */
         @media (max-width: 900px) {
             :root { --nav-h: 3.5rem; --pad: 1.2rem; }
             .nav-links { display: none; } 
+            .dashboard { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(6, 1fr); }
             
-            /* Ripristinato il mosaico non-lineare 4x6 (non una pila verticale) */
-            .dashboard {
-                grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(6, 1fr);
-            }
-            
-            /* Incastro asimmetrico delle posizioni */
             .pos-1 { grid-column: 1 / 5; grid-row: 1 / 4; --scale: 0.85; flex-direction: row; } 
             .pos-2 { grid-column: 1 / 3; grid-row: 4 / 7; --scale: 0.60; flex-direction: column; } 
             .pos-3 { grid-column: 3 / 5; grid-row: 4 / 6; --scale: 0.50; flex-direction: column; } 
@@ -175,8 +187,6 @@
 
             .title-giant { font-size: 2.5rem; margin-bottom: 0.5rem; }
             h2 { margin-bottom: 0.3rem; }
-            
-            /* I testi spariscono nelle celle piccole su mobile per mantenere l'estetica a griglia */
             .level:not(.pos-1) p { display: none; }
             
             .footer { padding: 0 1rem; padding-bottom: max(env(safe-area-inset-bottom), 1px); gap: 1rem; }
@@ -198,9 +208,8 @@
     </nav>
 
     <main class="dashboard">
-        
         <div id="lvl-1" class="level pos-1">
-            <div class="cell">
+            <div class="cell" id="c1-1">
                 <div class="top">
                     <h1 class="title-giant">How To Choose<br>In The Infinity?</h1>
                     <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
@@ -210,14 +219,14 @@
         </div>
 
         <div id="lvl-2" class="level pos-2">
-            <div class="cell">
+            <div class="cell" id="c2-1">
                 <div class="top">
                     <h2>Q-cycle</h2>
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
                 <div class="bottom"><button class="btn-capsule">GitHub</button></div>
             </div>
-            <div class="cell">
+            <div class="cell" id="c2-2">
                 <div class="top">
                     <h2>Q-Room</h2>
                     <p>Calcolo dell'ambiente spaziale fisico e posizionamento algoritmico delle sorgenti acustiche per eliminare i nodi.</p>
@@ -227,7 +236,7 @@
         </div>
 
         <div id="lvl-3" class="level pos-3">
-            <div class="cell">
+            <div class="cell" id="c3-1">
                 <div class="top">
                     <h2>Site Specific</h2>
                     <p>Registrazione binaurale dalla performance live. Si consiglia l'uso di cuffie.</p>
@@ -238,14 +247,14 @@
                     </div>
                 </div>
             </div>
-            <div class="cell">
+            <div class="cell" id="c3-2">
                 <div class="top">
                     <h2>Spatial Setup</h2>
                     <p>Mappatura e coordinate dei nodi acustici critici.</p>
                 </div>
                 <div class="bottom"><button class="btn-capsule">Log</button></div>
             </div>
-            <div class="cell">
+            <div class="cell" id="c3-3">
                 <div class="top">
                     <h2>Hardware</h2>
                     <p>Diagramma del routing del segnale analogico.</p>
@@ -255,24 +264,23 @@
         </div>
 
         <div id="lvl-4" class="level pos-4">
-            <div class="cell">
+            <div class="cell" id="c4-1">
                 <div class="top"><h2>Press</h2><p>Release notes and articles.</p></div>
                 <div class="bottom"><button class="btn-capsule">Read</button></div>
             </div>
-            <div class="cell">
+            <div class="cell" id="c4-2">
                 <div class="top"><h2>Credits</h2><p>Tech specs and engineers.</p></div>
                 <div class="bottom"><button class="btn-capsule">View</button></div>
             </div>
-            <div class="cell">
+            <div class="cell" id="c4-3">
                 <div class="top"><h2>Partners</h2><p>Cultural institutions.</p></div>
                 <div class="bottom"><button class="btn-capsule">List</button></div>
             </div>
-            <div class="cell">
+            <div class="cell" id="c4-4">
                 <div class="top"><h2>Contact</h2><p>Join the acoustic research.</p></div>
                 <div class="bottom"><button class="btn-capsule">Mail</button></div>
             </div>
         </div>
-
     </main>
 
     <footer class="footer">
@@ -285,9 +293,52 @@
     </footer>
 
     <script>
-        // ROTAZIONE A SPIRALE
+        // MOTORE AUDIO GLITCH
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        const soundBank = {
+            'c1-1': { type: 'sine', freq: 55.00, duration: 0.6, drop: true, vol: 0.8 },    
+            'c2-1': { type: 'square', freq: 329.6, duration: 0.04, drop: false, vol: 0.15 }, 
+            'c2-2': { type: 'square', freq: 440.0, duration: 0.04, drop: false, vol: 0.15 }, 
+            'c3-1': { type: 'sine', freq: 4000, duration: 0.02, drop: false, vol: 0.3 },     
+            'c3-2': { type: 'sine', freq: 6000, duration: 0.02, drop: false, vol: 0.3 },
+            'c3-3': { type: 'triangle', freq: 110, duration: 0.08, drop: false, vol: 0.4 },  
+            'c4-1': { type: 'sine', freq: 12000, duration: 0.01, drop: false, vol: 0.3 },    
+            'c4-2': { type: 'sawtooth', freq: 880, duration: 0.03, drop: false, vol: 0.1 },  
+            'c4-3': { type: 'square', freq: 2200, duration: 0.02, drop: false, vol: 0.1 },
+            'c4-4': { type: 'sine', freq: 80, duration: 0.1, drop: false, vol: 0.6 }         
+        };
+
+        function playGlitch(cellId) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const config = soundBank[cellId];
+            if(!config) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = config.type;
+            osc.frequency.setValueAtTime(config.freq, audioCtx.currentTime);
+
+            if(config.drop) {
+                osc.frequency.exponentialRampToValueAtTime(config.freq / 2, audioCtx.currentTime + config.duration);
+            }
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(config.vol, audioCtx.currentTime + 0.005); 
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + config.duration); 
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + config.duration + 0.1);
+        }
+
+        // MOTORE DI ROTAZIONE
         const navLinks = document.querySelectorAll('.btn-nav');
-        const levels = document.querySelectorAll('.level');
+        const cells = document.querySelectorAll('.cell');
 
         function swapToMain(targetLevelId) {
             const targetLevel = document.getElementById(targetLevelId);
@@ -314,15 +365,26 @@
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                swapToMain(link.getAttribute('data-target'));
+                const targetLevelId = link.getAttribute('data-target');
+                const firstCellOfLevel = document.querySelector(`#${targetLevelId} .cell`);
+                if(firstCellOfLevel) playGlitch(firstCellOfLevel.id);
+                swapToMain(targetLevelId);
             });
         });
 
-        levels.forEach(level => {
-            level.addEventListener('click', (e) => {
-                if (e.target.closest('.btn-capsule')) return;
-                swapToMain(level.id);
+        cells.forEach(cell => {
+            cell.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.btn-capsule')) return; 
+                
+                playGlitch(cell.id);
+                const parentLevel = cell.closest('.level');
+                swapToMain(parentLevel.id);
             });
+            
+            cell.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.btn-capsule')) return;
+                playGlitch(cell.id);
+            }, {passive: true});
         });
 
         // AUDIO PLAYER GLOBALE
