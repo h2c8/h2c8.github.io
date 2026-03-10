@@ -74,19 +74,62 @@
         #lvl-3 { view-transition-name: lvl-3; }
         #lvl-4 { view-transition-name: lvl-4; }
 
-        /* CELLE BASE */
+        /* 3. ARCHITETTURA DELLA CELLA (Chirurgica e Spaziale) */
         .cell {
             flex: 1; 
-            background: var(--bg);
-            color: var(--ink);
+            background: var(--bg); color: var(--ink);
             padding: calc(var(--pad) * var(--scale));
-            display: flex; flex-direction: column; justify-content: space-between;
-            overflow-y: auto; scrollbar-width: none; min-height: 0; min-width: 0;
-            /* Estetica Raster-Noton: ZERO transizioni morbide. Booleano, immediato. */
-            transition: none; 
+            display: flex; flex-direction: column; 
+            justify-content: flex-start;
+            overflow: hidden; min-height: 0; min-width: 0;
+            transition: background-color 0s, color 0s; 
+            container-type: size; /* Abilita le misurazioni interne */
         }
 
-        /* INVERSIONE DI MASSA BOOLEANA (Niente finti bordi o rettangoli) */
+        /* Gestione rigida dei blocchi interni */
+        .top { 
+            display: flex; flex-direction: column; 
+            overflow: hidden; 
+            min-height: 0; min-width: 0; /* LUCCHETTO ANTI-ESPLOSIONE */
+            flex: 0 1 auto; /* Permette la compressione se c'è poco spazio */
+        }
+
+        .bottom { 
+            align-self: flex-start; width: 100%; 
+            flex: 0 0 auto; /* Impedisce SEMPRE lo schiacciamento del pulsante */
+            margin-top: calc(1.5rem * var(--scale)); /* Spazio proporzionale sopra il pulsante */
+        }
+
+        /* 4. TIPOGRAFIA */
+        h2 { 
+            font-size: calc(1.5rem * var(--scale)); 
+            font-weight: 600; margin-bottom: calc(0.6rem * var(--scale)); 
+            letter-spacing: -0.02em; text-transform: uppercase; 
+            flex: 0 0 auto; /* Il titolo è sacro, non si comprime */
+        }
+
+        p { 
+            font-size: calc(1rem * var(--scale)); 
+            line-height: 1.4; opacity: 0.85; margin-bottom: 0; 
+            text-align: justify; hyphens: auto;
+            overflow: hidden; text-overflow: ellipsis; 
+            display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5;
+        }
+        
+        .title-giant { 
+            font-size: calc(4.5rem * var(--scale)); 
+            font-weight: 500; line-height: 0.95; letter-spacing: -0.04em; 
+            margin-bottom: calc(1.5rem * var(--scale)); 
+            flex: 0 0 auto;
+        }
+
+        /* 5. PROTEZIONE SPAZIALE */
+        @container (max-height: 180px) or (max-width: 220px) {
+            p { display: none; }
+            .bottom { margin-top: auto; }
+        }
+
+        /* 6. INVERSIONE DI MASSA BOOLEANA (Hover/Active) */
         @media (hover: hover) {
             .level:not(.pos-1) .cell:hover {
                 background-color: var(--ink); 
@@ -113,29 +156,7 @@
             }
         }
 
-        /* TIPOGRAFIA */
-        .top { display: flex; flex-direction: column; overflow: hidden; }
-        .bottom { margin-top: auto; padding-top: calc(1rem * var(--scale)); align-self: flex-start; width: 100%;}
-
-        h2 { 
-            font-size: calc(1.5rem * var(--scale)); 
-            font-weight: 600; margin-bottom: calc(0.6rem * var(--scale)); 
-            letter-spacing: -0.02em; text-transform: uppercase; 
-        }
-        p { 
-            font-size: calc(1rem * var(--scale)); 
-            line-height: 1.4; opacity: 0.85; margin-bottom: 0; 
-            text-align: justify; hyphens: auto;
-            overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6;
-        }
-        
-        .title-giant { 
-            font-size: calc(4.5rem * var(--scale)); 
-            font-weight: 500; line-height: 0.95; letter-spacing: -0.04em; 
-            margin-bottom: calc(1.5rem * var(--scale)); 
-        }
-
-        /* PULSANTI (Rigidi a 1px) */
+        /* 7. PULSANTI */
         .btn-capsule {
             display: inline-flex; align-items: center; justify-content: center;
             padding: calc(max(6px, 0.5rem * var(--scale))) calc(max(12px, 1.2rem * var(--scale))); 
@@ -150,7 +171,7 @@
         .level .btn-capsule:hover { background: var(--ink); color: var(--bg); }
         .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
 
-        /* FOOTER AUDIO PLAYER */
+        /* 8. FOOTER AUDIO PLAYER */
         .footer {
             flex: 0 0 var(--nav-h); width: 100%;
             display: flex; align-items: center; justify-content: space-between;
@@ -174,7 +195,7 @@
         }
         .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
-        /* MOBILE */
+        /* 9. MOBILE */
         @media (max-width: 900px) {
             :root { --nav-h: 3.5rem; --pad: 1.2rem; }
             .nav-links { display: none; } 
@@ -188,11 +209,51 @@
             .title-giant { font-size: 2.5rem; margin-bottom: 0.5rem; }
             h2 { margin-bottom: 0.3rem; }
             .level:not(.pos-1) p { display: none; }
+            .level:not(.pos-1) .bottom { margin-top: auto; }
             
             .footer { padding: 0 1rem; padding-bottom: max(env(safe-area-inset-bottom), 1px); gap: 1rem; }
             .play-btn { width: auto; }
             .time-display { width: auto; }
+
+            /* --- CALIBRAZIONE IMMAGINE E TESTO SU MOBILE --- */
+            .level.pos-1 .artwork {
+                margin-bottom: 0.5rem; /* Riduce il respiro per salvare spazio */
+            }
+            
+            .level.pos-1 .artwork img {
+                max-height: 18vh; /* Compressione chirurgica: la foto occupa meno altezza su mobile */
+            }
+
+            .level.pos-1 p {
+                -webkit-line-clamp: 3; /* Taglia il testo a 3 righe invece di 5, evitando che tocchi il pulsante */
+            }
+
         }
+
+        /* --- INIZIO: IMMAGINE IN FLUSSO BLINDATA --- */
+        .artwork {
+            display: none; 
+        }
+
+        .level.pos-1 .artwork {
+            display: block; 
+            width: 100%; 
+            min-height: 0; min-width: 0; /* LUCCHETTO ANTI-ESPLOSIONE 2 */
+            margin-bottom: calc(1rem * var(--scale)); 
+            flex-shrink: 1; /* Permette la compressione in altezza/larghezza */
+            overflow: hidden;
+        }
+
+        .level.pos-1 .artwork img {
+            display: block;
+            width: 100%;
+            max-width: 100%; /* Garantisce che non strabordi mai */
+            max-height: clamp(150px, 30vh, 350px); /* Proporzione controllata in base allo schermo */
+            object-fit: cover; 
+            filter: grayscale(100%) contrast(120%);
+        }
+        /* --- FINE: IMMAGINE IN FLUSSO BLINDATA --- */
+
     </style>
 </head>
 <body>
@@ -212,8 +273,14 @@
             <div class="cell" id="c1-1">
                 <div class="top">
                     <h1 class="title-giant">How To Choose<br>In The Infinity?</h1>
+                    
+                    <div class="artwork">
+                        <img src="https://raw.githubusercontent.com/h2c8/h2c8.github.io/refs/heads/main/pag1.png">
+                    </div>
+
                     <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
                 </div>
+                
                 <div class="bottom"><button class="btn-capsule">Enter Process</button></div>
             </div>
         </div>
@@ -222,6 +289,15 @@
             <div class="cell" id="c2-1">
                 <div class="top">
                     <h2>Q-cycle</h2>
+
+                    <div class="artwork">
+                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data">
+                    </div>
+
+                    <div class="artwork">
+                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data">
+                    </div>                    
+
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
                 <div class="bottom"><button class="btn-capsule">GitHub</button></div>
