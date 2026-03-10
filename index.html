@@ -82,11 +82,10 @@
             padding: calc(var(--pad) * var(--scale));
             display: flex; flex-direction: column; justify-content: space-between;
             overflow-y: auto; scrollbar-width: none; min-height: 0; min-width: 0;
-            /* Estetica Raster-Noton: ZERO transizioni morbide. Booleano, immediato. */
-            transition: none; 
+            transition: background-color 0.05s ease, color 0.05s ease, box-shadow 0.05s ease; 
         }
 
-        /* INVERSIONE DI MASSA BOOLEANA (Niente finti bordi o rettangoli) */
+        /* INVERSIONE DI MASSA BOOLEANA */
         @media (hover: hover) {
             .level:not(.pos-1) .cell:hover {
                 background-color: var(--ink); 
@@ -174,7 +173,7 @@
         }
         .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
-        /* MOBILE */
+        /* MOBILE (Mosaico Perfetto Intatto) */
         @media (max-width: 900px) {
             :root { --nav-h: 3.5rem; --pad: 1.2rem; }
             .nav-links { display: none; } 
@@ -193,9 +192,65 @@
             .play-btn { width: auto; }
             .time-display { width: auto; }
         }
+
+        /* ---------------------------------------------------- */
+        /* MODULO IMMAGINI: RIVELAZIONE NELLA ZONA 1            */
+        /* ---------------------------------------------------- */
+        .with-image {
+            position: relative;
+            z-index: 1;
+        }
+
+        .with-image::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: var(--bg-img); 
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            opacity: 0; 
+            transition: opacity 0.05s, filter 0.05s;
+        }
+
+        .pos-1 .with-image::before {
+            opacity: 0.25; 
+            filter: grayscale(100%) invert(100%) contrast(1.5);
+        }
+
+        /* ---------------------------------------------------- */
+        /* CURSORE GEOMETRICO ADATTIVO (Solo Desktop)           */
+        /* ---------------------------------------------------- */
+        @media (pointer: fine) {
+            body, .cell, button, a { cursor: none !important; }
+            
+            .custom-cursor {
+                position: fixed;
+                top: 0; left: 0;
+                width: 14px; height: 14px;
+                border: 1px solid #FFF; 
+                transform: translate(-50%, -50%);
+                pointer-events: none; 
+                z-index: 9999;
+                mix-blend-mode: difference; 
+                transition: width 0.1s, height 0.1s, background-color 0.1s;
+            }
+
+            .custom-cursor.active {
+                width: 8px; height: 8px;
+                background-color: #FFF;
+            }
+        }
+
+        @media (pointer: coarse) {
+            .custom-cursor { display: none !important; }
+        }
+
     </style>
 </head>
 <body>
+
+    <div class="custom-cursor" id="custom-cursor"></div>
 
     <nav class="nav">
         <div class="nav-title">方法 Hōhō Studio</div>
@@ -209,7 +264,7 @@
 
     <main class="dashboard">
         <div id="lvl-1" class="level pos-1">
-            <div class="cell" id="c1-1">
+            <div class="cell with-image" id="c1-1" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top">
                     <h1 class="title-giant">How To Choose<br>In The Infinity?</h1>
                     <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
@@ -219,14 +274,14 @@
         </div>
 
         <div id="lvl-2" class="level pos-2">
-            <div class="cell" id="c2-1">
+            <div class="cell with-image" id="c2-1" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top">
                     <h2>Q-cycle</h2>
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
                 <div class="bottom"><button class="btn-capsule">GitHub</button></div>
             </div>
-            <div class="cell" id="c2-2">
+            <div class="cell with-image" id="c2-2" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top">
                     <h2>Q-Room</h2>
                     <p>Calcolo dell'ambiente spaziale fisico e posizionamento algoritmico delle sorgenti acustiche per eliminare i nodi.</p>
@@ -236,7 +291,7 @@
         </div>
 
         <div id="lvl-3" class="level pos-3">
-            <div class="cell" id="c3-1">
+            <div class="cell with-image" id="c3-1" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top">
                     <h2>Site Specific</h2>
                     <p>Registrazione binaurale dalla performance live. Si consiglia l'uso di cuffie.</p>
@@ -247,14 +302,14 @@
                     </div>
                 </div>
             </div>
-            <div class="cell" id="c3-2">
+            <div class="cell with-image" id="c3-2" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top">
                     <h2>Spatial Setup</h2>
                     <p>Mappatura e coordinate dei nodi acustici critici.</p>
                 </div>
                 <div class="bottom"><button class="btn-capsule">Log</button></div>
             </div>
-            <div class="cell" id="c3-3">
+            <div class="cell with-image" id="c3-3" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top">
                     <h2>Hardware</h2>
                     <p>Diagramma del routing del segnale analogico.</p>
@@ -264,19 +319,19 @@
         </div>
 
         <div id="lvl-4" class="level pos-4">
-            <div class="cell" id="c4-1">
+            <div class="cell with-image" id="c4-1" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top"><h2>Press</h2><p>Release notes and articles.</p></div>
                 <div class="bottom"><button class="btn-capsule">Read</button></div>
             </div>
-            <div class="cell" id="c4-2">
+            <div class="cell with-image" id="c4-2" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top"><h2>Credits</h2><p>Tech specs and engineers.</p></div>
                 <div class="bottom"><button class="btn-capsule">View</button></div>
             </div>
-            <div class="cell" id="c4-3">
+            <div class="cell with-image" id="c4-3" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top"><h2>Partners</h2><p>Cultural institutions.</p></div>
                 <div class="bottom"><button class="btn-capsule">List</button></div>
             </div>
-            <div class="cell" id="c4-4">
+            <div class="cell with-image" id="c4-4" style="--bg-img: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop');">
                 <div class="top"><h2>Contact</h2><p>Join the acoustic research.</p></div>
                 <div class="bottom"><button class="btn-capsule">Mail</button></div>
             </div>
@@ -427,6 +482,30 @@
             const duration = audio.duration;
             audio.currentTime = (clickX / width) * duration;
         });
+
+        // MOTORE CURSORE JS
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const customCursor = document.getElementById('custom-cursor');
+            let mouseX = 0, mouseY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animateCursor() {
+                customCursor.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            const interactables = document.querySelectorAll('.cell, .btn-nav, .btn-capsule, .play-btn, .progress-container');
+            interactables.forEach(el => {
+                el.addEventListener('mouseenter', () => customCursor.classList.add('active'));
+                el.addEventListener('mouseleave', () => customCursor.classList.remove('active'));
+            });
+        }
+        
     </script>
 </body>
 </html>
