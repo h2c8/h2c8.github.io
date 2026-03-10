@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg: #FFFFFF;
-            --ink: #000000;
+            --ink: #1a1a1a;
             --font-main: Helvetica, Arial, sans-serif;
             --nav-h: 4rem;
             --pad: 2rem;
@@ -31,7 +31,10 @@
             padding: 0 1.5rem; border-bottom: 1px solid var(--ink);
             background: var(--bg); z-index: 10;
         }
-        .nav-title { font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .nav-title { 
+            font-weight: 700; font-size: 1rem; text-transform: uppercase; 
+            letter-spacing: 0.05em; cursor: pointer; user-select: none;
+        }
         .nav-links { display: flex; gap: 0.5rem; }
 
         .btn-nav {
@@ -74,7 +77,7 @@
         #lvl-3 { view-transition-name: lvl-3; }
         #lvl-4 { view-transition-name: lvl-4; }
 
-        /* 3. ARCHITETTURA DELLA CELLA (Chirurgica e Spaziale) */
+        /* 3. ARCHITETTURA DELLA CELLA */
         .cell {
             flex: 1; 
             background: var(--bg); color: var(--ink);
@@ -83,21 +86,20 @@
             justify-content: flex-start;
             overflow: hidden; min-height: 0; min-width: 0;
             transition: background-color 0s, color 0s; 
-            container-type: size; /* Abilita le misurazioni interne */
+            container-type: size; 
         }
 
-        /* Gestione rigida dei blocchi interni */
         .top { 
             display: flex; flex-direction: column; 
             overflow: hidden; 
-            min-height: 0; min-width: 0; /* LUCCHETTO ANTI-ESPLOSIONE */
-            flex: 0 1 auto; /* Permette la compressione se c'è poco spazio */
+            min-height: 0; min-width: 0; 
+            flex: 0 1 auto; 
         }
 
         .bottom { 
             align-self: flex-start; width: 100%; 
-            flex: 0 0 auto; /* Impedisce SEMPRE lo schiacciamento del pulsante */
-            margin-top: calc(1.5rem * var(--scale)); /* Spazio proporzionale sopra il pulsante */
+            flex: 0 0 auto; 
+            margin-top: calc(1.5rem * var(--scale)); 
         }
 
         /* 4. TIPOGRAFIA */
@@ -105,7 +107,7 @@
             font-size: calc(1.5rem * var(--scale)); 
             font-weight: 600; margin-bottom: calc(0.6rem * var(--scale)); 
             letter-spacing: -0.02em; text-transform: uppercase; 
-            flex: 0 0 auto; /* Il titolo è sacro, non si comprime */
+            flex: 0 0 auto; 
         }
 
         p { 
@@ -131,26 +133,26 @@
 
         /* 6. INVERSIONE DI MASSA BOOLEANA (Hover/Active) */
         @media (hover: hover) {
-            .level:not(.pos-1) .cell:hover {
+            body:not(.sequencer-mode) .level:not(.pos-1) .cell:hover {
                 background-color: var(--ink); 
                 color: var(--bg);
             }
-            .level:not(.pos-1) .cell:hover .btn-capsule {
+            body:not(.sequencer-mode) .level:not(.pos-1) .cell:hover .btn-capsule {
                 border-color: var(--bg);
                 color: var(--bg);
             }
-            .level:not(.pos-1) .cell:hover .btn-capsule:hover {
+            body:not(.sequencer-mode) .level:not(.pos-1) .cell:hover .btn-capsule:hover {
                 background-color: var(--bg);
                 color: var(--ink);
             }
         }
 
         @media (hover: none) {
-            .level:not(.pos-1) .cell:active {
+            body:not(.sequencer-mode) .level:not(.pos-1) .cell:active {
                 background-color: var(--ink);
                 color: var(--bg);
             }
-            .level:not(.pos-1) .cell:active .btn-capsule {
+            body:not(.sequencer-mode) .level:not(.pos-1) .cell:active .btn-capsule {
                 border-color: var(--bg);
                 color: var(--bg);
             }
@@ -168,7 +170,7 @@
             cursor: pointer; transition: background 0.1s, color 0.1s;
         }
         
-        .level .btn-capsule:hover { background: var(--ink); color: var(--bg); }
+        body:not(.sequencer-mode) .level .btn-capsule:hover { background: var(--ink); color: var(--bg); }
         .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
 
         /* 8. FOOTER AUDIO PLAYER */
@@ -183,8 +185,15 @@
         }
         .play-btn { 
             background: transparent; border: none; color: var(--ink);
-            font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
-            cursor: pointer; letter-spacing: 0.05em; width: 60px; text-align: left;
+            cursor: pointer; width: 40px; 
+            display: flex; align-items: center; justify-content: flex-start;
+            padding: 0; outline: none;
+        }
+        .play-btn svg { 
+            transition: transform 0.1s ease; 
+        }
+        .play-btn:active svg { 
+            transform: scale(0.85); 
         }
         .progress-container { flex: 1; height: 1px; background: #e0e0e0; position: relative; cursor: pointer; }
         .progress-bar { height: 100%; background: var(--ink); width: 0%; transition: width 0.1s linear; position: relative; }
@@ -216,50 +225,57 @@
             .time-display { width: auto; }
 
             /* --- CALIBRAZIONE IMMAGINE E TESTO SU MOBILE --- */
-            .level.pos-1 .artwork {
-                margin-bottom: 0.5rem; /* Riduce il respiro per salvare spazio */
+            .level.pos-1 .artwork { 
+                margin-bottom: 0.5rem; 
+            }
+            .level.pos-1 .artwork img { 
+                max-height: 18vh; 
+            }
+
+            /* 1. Di default in pos-1 (senza foto) diamo molto più spazio al testo */
+            .level.pos-1 p { 
+                -webkit-line-clamp: 8; 
             }
             
-            .level.pos-1 .artwork img {
-                max-height: 18vh; /* Compressione chirurgica: la foto occupa meno altezza su mobile */
+            /* 2. MA se la cella contiene un'opera d'arte, lo costringiamo a 3 righe */
+            .level.pos-1 .cell:has(.artwork) p { 
+                -webkit-line-clamp: 3; 
             }
-
-            .level.pos-1 p {
-                -webkit-line-clamp: 3; /* Taglia il testo a 3 righe invece di 5, evitando che tocchi il pulsante */
-            }
-
         }
 
-        /* --- INIZIO: IMMAGINE IN FLUSSO BLINDATA --- */
-        .artwork {
-            display: none; 
-        }
-
+        /* --- IMMAGINE IN FLUSSO BLINDATA --- */
+        .artwork { display: none; }
         .level.pos-1 .artwork {
-            display: block; 
-            width: 100%; 
-            min-height: 0; min-width: 0; /* LUCCHETTO ANTI-ESPLOSIONE 2 */
+            display: block; width: 100%; 
+            min-height: 0; min-width: 0; 
             margin-bottom: calc(1rem * var(--scale)); 
-            flex-shrink: 1; /* Permette la compressione in altezza/larghezza */
-            overflow: hidden;
+            flex-shrink: 1; overflow: hidden;
         }
-
         .level.pos-1 .artwork img {
-            display: block;
-            width: 100%;
-            max-width: 100%; /* Garantisce che non strabordi mai */
-            max-height: clamp(150px, 30vh, 350px); /* Proporzione controllata in base allo schermo */
+            display: block; width: 100%; max-width: 100%; 
+            max-height: clamp(150px, 30vh, 350px); 
             object-fit: cover; 
             filter: grayscale(100%) contrast(120%);
         }
-        /* --- FINE: IMMAGINE IN FLUSSO BLINDATA --- */
+
+        /* --- EASTER EGG: SEQUENCER MODE STYLES --- */
+        body.sequencer-mode .cell { transition: background-color 0s, color 0s; cursor: crosshair; }
+        
+        /* Cella Armata (Selezionata dall'utente) */
+        body.sequencer-mode .cell.armed { background-color: var(--ink); color: var(--bg); }
+        body.sequencer-mode .cell.armed .btn-capsule { border-color: var(--bg); color: var(--bg); }
+        body.sequencer-mode .cell.armed img { filter: grayscale(100%) contrast(120%) invert(1); }
+
+        /* Cella Attiva (Il Metronomo passa sopra) */
+        body.sequencer-mode .cell.active-step { background-color: #e0e0e0; color: var(--ink); }
+        body.sequencer-mode .cell.armed.active-step { background-color: #333333; color: var(--bg); }
 
     </style>
 </head>
 <body>
 
     <nav class="nav">
-        <div class="nav-title">方法 Hōhō Studio</div>
+        <div class="nav-title" id="nav-trigger">方法 Hōhō Studio</div>
         <div class="nav-links">
             <a href="#" class="btn-nav" data-target="lvl-1">State</a>
             <a href="#" class="btn-nav" data-target="lvl-2">Dev</a>
@@ -272,15 +288,14 @@
         <div id="lvl-1" class="level pos-1">
             <div class="cell" id="c1-1">
                 <div class="top">
-                    <h1 class="title-giant">How To Choose<br>In The Infinity?</h1>
+                    <h1 class="title-giant">H2 DEV STUDIO</h1>
                     
-                    <div class="artwork">
-                        <img src="https://raw.githubusercontent.com/h2c8/h2c8.github.io/refs/heads/main/pag1.png">
-                    </div>
+                    <!--<div class="artwork">
+                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data">
+                    </div>-->
 
-                    <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
                 </div>
-                
                 <div class="bottom"><button class="btn-capsule">Enter Process</button></div>
             </div>
         </div>
@@ -289,15 +304,8 @@
             <div class="cell" id="c2-1">
                 <div class="top">
                     <h2>Q-cycle</h2>
-
-                    <div class="artwork">
-                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data">
-                    </div>
-
-                    <div class="artwork">
-                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data">
-                    </div>                    
-
+                    <div class="artwork"><img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data"></div>
+                    <div class="artwork"><img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Acoustic Data"></div>                    
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
                 <div class="bottom"><button class="btn-capsule">GitHub</button></div>
@@ -361,7 +369,14 @@
 
     <footer class="footer">
         <audio id="audio-track" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="metadata"></audio>
-        <button id="play-btn" class="play-btn">Play</button>
+            <button id="play-btn" class="play-btn" aria-label="Play/Pause">
+                <svg id="icon-play" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M6 4l14 8-14 8z"/>
+                </svg>
+                <svg id="icon-pause" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display: none;">
+                    <path d="M6 4h4v16H6zm8 0h4v16h-4z"/>
+                </svg>
+            </button>
         <div class="progress-container" id="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
@@ -374,15 +389,15 @@
 
         const soundBank = {
             'c1-1': { type: 'sine', freq: 55.00, duration: 0.6, drop: true, vol: 0.8 },    
-            'c2-1': { type: 'square', freq: 329.6, duration: 0.04, drop: false, vol: 0.15 }, 
-            'c2-2': { type: 'square', freq: 440.0, duration: 0.04, drop: false, vol: 0.15 }, 
+            'c2-1': { type: 'sine', freq: 329.6, duration: 0.04, drop: false, vol: 0.15 }, 
+            'c2-2': { type: 'sine', freq: 440.0, duration: 0.04, drop: false, vol: 0.15 }, 
             'c3-1': { type: 'sine', freq: 4000, duration: 0.02, drop: false, vol: 0.3 },     
             'c3-2': { type: 'sine', freq: 6000, duration: 0.02, drop: false, vol: 0.3 },
-            'c3-3': { type: 'triangle', freq: 110, duration: 0.08, drop: false, vol: 0.4 },  
+            'c3-3': { type: 'sine', freq: 110, duration: 0.08, drop: false, vol: 0.4 },  
             'c4-1': { type: 'sine', freq: 12000, duration: 0.01, drop: false, vol: 0.3 },    
-            'c4-2': { type: 'sawtooth', freq: 880, duration: 0.03, drop: false, vol: 0.1 },  
-            'c4-3': { type: 'square', freq: 2200, duration: 0.02, drop: false, vol: 0.1 },
-            'c4-4': { type: 'sine', freq: 80, duration: 0.1, drop: false, vol: 0.6 }         
+            'c4-2': { type: 'sine', freq: 880, duration: 0.03, drop: false, vol: 0.1 },  
+            'c4-3': { type: 'sine', freq: 2200, duration: 0.02, drop: false, vol: 0.1 },
+            'c4-4': { type: 'sine', freq: 200, duration: 0.1, drop: false, vol: 0.6 }         
         };
 
         function playGlitch(cellId) {
@@ -412,7 +427,62 @@
             osc.stop(audioCtx.currentTime + config.duration + 0.1);
         }
 
-        // MOTORE DI ROTAZIONE
+        // --- MOTORE EASTER EGG: SEQUENCER MODE ---
+        let isSequencerMode = false;
+        let sequencerInterval = null;
+        let currentStep = 0;
+        let clickCount = 0;
+        let clickTimer;
+        
+        const navTrigger = document.getElementById('nav-trigger');
+        const sequenceOrder = ['c1-1', 'c2-1', 'c2-2', 'c3-1', 'c3-2', 'c3-3', 'c4-1', 'c4-2', 'c4-3', 'c4-4'];
+
+        function toggleSequencerMode() {
+            isSequencerMode = !isSequencerMode;
+            if (isSequencerMode) {
+                document.body.classList.add('sequencer-mode');
+                navTrigger.textContent = "SEQ. MODE RUNNING (4 TO EXIT)";
+                currentStep = 0;
+                sequencerInterval = setInterval(runStep, 250); // Velocità: 250ms a blocco
+            } else {
+                document.body.classList.remove('sequencer-mode');
+                navTrigger.textContent = "方法 Hōhō Studio";
+                clearInterval(sequencerInterval);
+                cells.forEach(c => {
+                    c.classList.remove('armed');
+                    c.classList.remove('active-step');
+                });
+            }
+        }
+
+        function runStep() {
+            cells.forEach(c => c.classList.remove('active-step'));
+            const currentId = sequenceOrder[currentStep];
+            const currentCell = document.getElementById(currentId);
+            
+            if (currentCell) {
+                currentCell.classList.add('active-step');
+                if (currentCell.classList.contains('armed')) {
+                    playGlitch(currentId);
+                }
+            }
+            currentStep = (currentStep + 1) % sequenceOrder.length;
+        }
+
+        // Il Trigger Segreto
+        navTrigger.addEventListener('click', () => {
+            clickCount++;
+            clearTimeout(clickTimer);
+            if (clickCount >= 4) {
+                toggleSequencerMode();
+                clickCount = 0;
+            } else {
+                clickTimer = setTimeout(() => { clickCount = 0; }, 600);
+            }
+        });
+        // --- FINE MOTORE SEQUENCER ---
+
+        // MOTORE DI ROTAZIONE (Modificato per supportare il Sequencer)
         const navLinks = document.querySelectorAll('.btn-nav');
         const cells = document.querySelectorAll('.cell');
 
@@ -441,6 +511,7 @@
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
+                if (isSequencerMode) return; // Disabilita rotazione navigazione durante la mod
                 const targetLevelId = link.getAttribute('data-target');
                 const firstCellOfLevel = document.querySelector(`#${targetLevelId} .cell`);
                 if(firstCellOfLevel) playGlitch(firstCellOfLevel.id);
@@ -452,6 +523,13 @@
             cell.addEventListener('mousedown', (e) => {
                 if (e.target.closest('.btn-capsule')) return; 
                 
+                if (isSequencerMode) {
+                    // In modalità sequencer, cliccare "Arma" la cella e non ruota nulla
+                    cell.classList.toggle('armed');
+                    playGlitch(cell.id); // Feedback audio immediato
+                    return; 
+                }
+
                 playGlitch(cell.id);
                 const parentLevel = cell.closest('.level');
                 swapToMain(parentLevel.id);
@@ -459,8 +537,16 @@
             
             cell.addEventListener('touchstart', (e) => {
                 if (e.target.closest('.btn-capsule')) return;
+                
+                if (isSequencerMode) {
+                    e.preventDefault(); // Previene il doppio tocco su mobile
+                    cell.classList.toggle('armed');
+                    playGlitch(cell.id);
+                    return;
+                }
+
                 playGlitch(cell.id);
-            }, {passive: true});
+            }, {passive: false});
         });
 
         // AUDIO PLAYER GLOBALE
@@ -481,13 +567,20 @@
             timeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
         });
 
+        const iconPlay = document.getElementById('icon-play');
+        const iconPause = document.getElementById('icon-pause');
+
         playBtn.addEventListener('click', () => {
+            if (isSequencerMode) toggleSequencerMode(); // Spegne l'easter egg se avvi l'audio principale
+
             if (audio.paused) {
                 audio.play();
-                playBtn.textContent = 'Pause';
+                iconPlay.style.display = 'none';
+                iconPause.style.display = 'block';
             } else {
                 audio.pause();
-                playBtn.textContent = 'Play';
+                iconPlay.style.display = 'block';
+                iconPause.style.display = 'none';
             }
         });
 
