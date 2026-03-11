@@ -11,12 +11,12 @@
            01. CORE & VARIABLES
            ========================================================================== */
         :root {
-            --bg: #FFFFFF;         /* Sfondo: Carta / Vuoto puro */
-            --ink: #1a1a1a;        /* Inchiostro: Off-black per ridurre l'affaticamento visivo */
-            --led: #FF2A00;        /* Accento: Rosso industriale per interazioni hardware */
+            --bg: #FFFFFF;
+            --ink: #1a1a1a;
+            --led: #FF2A00;
             --font-main: Helvetica, Arial, sans-serif;
-            --nav-h: 4rem;         /* Altezza fissa della barra di controllo */
-            --pad: 2rem;           /* Unità di misura base per la griglia spaziale */
+            --nav-h: 4rem;
+            --pad: 2rem;
         }
 
         *, *::before, *::after { 
@@ -30,7 +30,7 @@
             color: var(--ink); 
             font-family: var(--font-main); 
             width: 100vw; 
-            height: 100dvh; /* dvh garantisce la misura esatta su browser mobile (es. Safari) */
+            height: 100dvh; 
             overflow: hidden; 
             display: flex; 
             flex-direction: column;
@@ -38,7 +38,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Screen Reader Only (A11y): Nasconde elementi visivamente ma li lascia a disposizione degli assistenti vocali */
+        /* Screen Reader Only (A11y) */
         .sr-only {
             position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
             overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
@@ -49,7 +49,6 @@
            ========================================================================== */
         :focus { outline: none; }
         
-        /* Contorno visibile solo quando si naviga da tastiera (Tab) */
         :focus-visible { 
             outline: 2px solid var(--led); 
             outline-offset: 2px; 
@@ -66,18 +65,17 @@
         #red-cursor { display: none; }
         
         @media (pointer: fine) {
-            /* Attiva il cursore personalizzato solo su dispositivi con mouse fisico */
             body.has-custom-cursor, body.has-custom-cursor * { cursor: none !important; }
             
             #red-cursor {
                 display: block;
                 position: fixed;
                 top: 0; left: 0;
-                width: 24px; height: 24px; /* Stato 1: Ricerca (Anello largo) */
+                width: 24px; height: 24px; 
                 background-color: transparent;
                 border: 1px solid var(--led);
                 border-radius: 50%;
-                pointer-events: none; /* Permette al click di trapassare l'elemento */
+                pointer-events: none; 
                 z-index: 9999;
                 transition: width 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
                             height 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
@@ -86,14 +84,12 @@
                 will-change: transform, width, height;
             }
 
-            /* Stato 2: Puntamento (Mirino in aggancio) */
             #red-cursor.hovering {
                 width: 16px; height: 16px;
                 border: 2px solid var(--led);
                 background-color: transparent;
             }
 
-            /* Stato 3: Azione (Pressione fisica del pulsante) */
             #red-cursor.clicking {
                 width: 8px; height: 8px;
                 border: 0px solid var(--led);
@@ -124,13 +120,13 @@
             background: transparent; color: var(--ink); font-size: 0.7rem;
             text-transform: uppercase; font-weight: 600; text-decoration: none;
             transition: background-color 0.2s, color 0.2s;
+            cursor: pointer;
         }
         
         .btn-nav:hover, .btn-nav.active { 
             background: var(--ink); color: var(--bg); 
         }
 
-        /* Hijacking: Sostituzione Navbar in Modalità Sequencer */
         .seq-controls { display: none; gap: 0.5rem; }
         body.sequencer-mode #standard-nav { display: none !important; }
         body.sequencer-mode #seq-nav { display: flex !important; }
@@ -141,12 +137,11 @@
         .dashboard {
             flex: 1; min-height: 0; 
             display: grid; width: 100%;
-            background: var(--ink); gap: 1px; /* Il bordo nero è generato dal gap */
+            background: var(--ink); gap: 1px; 
             grid-template-columns: 8fr 2fr 3fr;
             grid-template-rows: 5fr 3fr;
         }
 
-        /* Mappatura topologica delle scale visive */
         .pos-1 { grid-column: 1 / 2; grid-row: 1 / 3; --scale: 1; }     
         .pos-2 { grid-column: 2 / 4; grid-row: 1 / 2; --scale: 0.65; }  
         .pos-3 { grid-column: 3 / 4; grid-row: 2 / 3; --scale: 0.45; }  
@@ -163,7 +158,6 @@
         .pos-3 { flex-direction: column; } 
         .pos-4 { flex-direction: column; } 
 
-        /* Native View Transitions API per l'animazione di rotazione */
         #lvl-1 { view-transition-name: lvl-1; }
         #lvl-2 { view-transition-name: lvl-2; }
         #lvl-3 { view-transition-name: lvl-3; }
@@ -180,21 +174,21 @@
             justify-content: flex-start;
             overflow: hidden; min-height: 0; min-width: 0;
             transition: background-color 0s, color 0s; 
-            container-type: size; /* Abilita Container Queries */
+            container-type: size; 
             cursor: pointer;
         }
         .pos-1 .cell { cursor: default; }
 
         .top { 
             display: flex; flex-direction: column; 
-            gap: calc(1.2rem * var(--scale)); /* Metronomo spaziale interno */
+            gap: calc(1.2rem * var(--scale)); 
             flex: 0 1 auto; 
             overflow: hidden; min-height: 0; min-width: 0; 
         }
 
         .bottom { 
             flex: 0 0 auto; 
-            margin-top: calc(1.2rem * var(--scale)); /* Distanza chirurgica dal blocco .top */
+            margin-top: calc(1.2rem * var(--scale)); 
         }
 
         /* ==========================================================================
@@ -223,13 +217,11 @@
             flex: 0 0 auto; text-transform: uppercase;
         }
 
-        /* Container Queries: Protezione layout su celle estremamente compresse */
         @container (max-height: 180px) or (max-width: 220px) {
             p, .artwork { display: none !important; }
             .bottom { margin-top: calc(0.6rem * var(--scale)); }
         }
 
-        /* Blindatura Artwork (Immagini fluido-proporzionali) */
         .artwork { display: none; margin: 0; }
         .level.pos-1 .artwork {
             display: block; width: 100%; min-height: 0; min-width: 0; 
@@ -239,7 +231,7 @@
             display: block; width: 100%; max-width: 100%; 
             max-height: clamp(150px, 30vh, 350px); 
             object-fit: cover; 
-            filter: grayscale(100%) contrast(120%); /* Trattamento grafico forzato a B/N */
+            filter: grayscale(100%) contrast(120%); 
         }
 
         /* ==========================================================================
@@ -256,7 +248,7 @@
             body:not(.sequencer-mode) .level:not(.pos-1) .cell:active .btn-capsule { border-color: var(--bg); color: var(--bg); }
         }
 
-        /* Stile Bottoni Interni */
+        /* Fix A11y: I bottoni delle celle ora sono SPAN che si comportano visualmente come bottoni */
         .btn-capsule {
             display: inline-flex; align-items: center; justify-content: center;
             padding: calc(max(4px, 0.4rem * var(--scale))) calc(max(10px, 1.2rem * var(--scale))); 
@@ -278,7 +270,7 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 1.5rem; 
             border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
-            padding-bottom: env(safe-area-inset-bottom); /* Fix Notch iOS */
+            padding-bottom: env(safe-area-inset-bottom); 
             background: var(--bg); gap: 1.5rem; z-index: 10;
         }
         
@@ -293,7 +285,6 @@
         .progress-container { flex: 1; height: 1px; background: #e0e0e0; position: relative; cursor: pointer; }
         .progress-bar { height: 100%; background: var(--ink); width: 0%; transition: width 0.1s linear; position: relative; }
         
-        /* Cursore del player di avanzamento */
         .progress-bar::after {
             content: ''; position: absolute; right: 0; top: 50%;
             transform: translateY(-50%); width: 6px; height: 6px;
@@ -308,12 +299,10 @@
         @media (max-width: 900px) {
             :root { --nav-h: 3.5rem; --pad: 1.2rem; }
             
-            /* Navbar compressa (A11y safe) */
             .nav-links { gap: 0.3rem; }
             .btn-nav { padding: 0.3rem 0.6rem; font-size: 0.65rem; }
             .nav-title { font-size: 0.9rem; }
             
-            /* Griglia riconvertita in stack verticale/modulare */
             .dashboard { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(6, 1fr); }
             .pos-1 { grid-column: 1 / 5; grid-row: 1 / 4; --scale: 0.85; flex-direction: row; } 
             .pos-2 { grid-column: 1 / 3; grid-row: 4 / 7; --scale: 0.60; flex-direction: column; } 
@@ -327,7 +316,6 @@
             .play-btn { width: auto; }
             .time-display { width: auto; }
 
-            /* Espansione testo condizionale (Logica :has) */
             .level.pos-1 p { -webkit-line-clamp: 8; }
             .level.pos-1 .cell:has(.artwork) p { -webkit-line-clamp: 3; }
         }
@@ -336,7 +324,7 @@
            11. EASTER EGG: SEQUENCER MODE STYLES
            ========================================================================== */
         body.sequencer-mode .cell { transition: background-color 0s, color 0s; }
-        body.sequencer-mode .btn-capsule { pointer-events: none; } /* Impedisce click accidentali sui bottoni */
+        body.sequencer-mode .btn-capsule { pointer-events: none; } 
         body.sequencer-mode .cell.armed { background-color: var(--ink); color: var(--bg); }
         body.sequencer-mode .cell.armed .btn-capsule { border-color: var(--bg); color: var(--bg); }
         body.sequencer-mode .cell.armed img { filter: grayscale(100%) contrast(120%) invert(1); }
@@ -346,7 +334,9 @@
 </head>
 <body>
 
-    <h1 class="sr-only">Hōhō Studio - Matrice di ricerca acustica</h1>
+    <header class="sr-only">
+        <h1>Hōhō Studio - Matrice di ricerca acustica</h1>
+    </header>
 
     <div id="red-cursor" aria-hidden="true"></div>
 
@@ -354,10 +344,10 @@
         <div class="nav-title interactive-target" id="nav-trigger" tabindex="0" role="button" aria-label="Attiva modalità strumenti">方法 Hōhō Studio</div>
         
         <div class="nav-links" id="standard-nav">
-            <a href="#" class="btn-nav active interactive-target" data-target="lvl-1">State</a>
-            <a href="#" class="btn-nav interactive-target" data-target="lvl-2">Dev</a>
-            <a href="#" class="btn-nav interactive-target" data-target="lvl-3">Media</a>
-            <a href="#" class="btn-nav interactive-target" data-target="lvl-4">Info</a>
+            <button class="btn-nav active interactive-target" data-target="lvl-1">State</button>
+            <button class="btn-nav interactive-target" data-target="lvl-2">Dev</button>
+            <button class="btn-nav interactive-target" data-target="lvl-3">Media</button>
+            <button class="btn-nav interactive-target" data-target="lvl-4">Info</button>
         </div>
 
         <div class="nav-links seq-controls" id="seq-nav" aria-label="Controlli Sequencer">
@@ -375,7 +365,7 @@
                     <h2 class="title-giant">H2 DEV STUDIO</h2>
                     <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
                 </div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">Enter Process</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Enter Process</span></div>
             </div>
         </div>
 
@@ -386,14 +376,14 @@
                     <div class="artwork"><img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Rappresentazione dati acustici"></div>
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">GitHub</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">GitHub</span></div>
             </div>
             <div class="cell interactive-target" id="c2-2" tabindex="0" role="button" aria-label="Espandi progetto Q-Room">
                 <div class="top">
                     <h2>Q-Room</h2>
                     <p>Calcolo dell'ambiente spaziale fisico e posizionamento algoritmico delle sorgenti acustiche per eliminare i nodi.</p>
                 </div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">Demo</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Demo</span></div>
             </div>
         </div>
 
@@ -405,7 +395,7 @@
                 </div>
                 <div class="bottom">
                     <div class="player-inner">
-                        <button class="btn-capsule" tabindex="-1" aria-hidden="true">Bandcamp</button>
+                        <span class="btn-capsule" aria-hidden="true">Bandcamp</span>
                     </div>
                 </div>
             </div>
@@ -414,33 +404,33 @@
                     <h2>Spatial Setup</h2>
                     <p>Mappatura e coordinate dei nodi acustici critici.</p>
                 </div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">Log</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Log</span></div>
             </div>
             <div class="cell interactive-target" id="c3-3" tabindex="0" role="button" aria-label="Espandi schemi Hardware">
                 <div class="top">
                     <h2>Hardware</h2>
                     <p>Diagramma del routing del segnale analogico.</p>
                 </div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">Schema</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Schema</span></div>
             </div>
         </div>
 
         <div id="lvl-4" class="level pos-4">
             <div class="cell interactive-target" id="c4-1" tabindex="0" role="button" aria-label="Espandi informazioni Press">
                 <div class="top"><h2>Press</h2><p>Release notes and articles.</p></div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">Read</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Read</span></div>
             </div>
             <div class="cell interactive-target" id="c4-2" tabindex="0" role="button" aria-label="Espandi informazioni Credits">
                 <div class="top"><h2>Credits</h2><p>Tech specs and engineers.</p></div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">View</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">View</span></div>
             </div>
             <div class="cell interactive-target" id="c4-3" tabindex="0" role="button" aria-label="Espandi lista Partners">
                 <div class="top"><h2>Partners</h2><p>Cultural institutions.</p></div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">List</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">List</span></div>
             </div>
             <div class="cell interactive-target" id="c4-4" tabindex="0" role="button" aria-label="Apri contatti">
                 <div class="top"><h2>Contact</h2><p>Join the acoustic research.</p></div>
-                <div class="bottom"><button class="btn-capsule" tabindex="-1" aria-hidden="true">Mail</button></div>
+                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Mail</span></div>
             </div>
         </div>
     </main>
@@ -466,24 +456,20 @@
         const cursor = document.getElementById('red-cursor');
         let hasCustomCursor = false;
         
-        // Esclude i dispositivi touch usando media query JS
         if (window.matchMedia("(pointer: fine)").matches) {
             document.body.classList.add('has-custom-cursor');
             hasCustomCursor = true;
             
-            // Movimento zero-latenza (Sfrutta l'engine CSS per l'offset centrale)
             document.addEventListener('mousemove', (e) => {
                 cursor.style.transform = `translate3d(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%), 0)`;
             });
 
-            // Gestione fasi del cursore (Ricerca -> Puntamento -> Azione)
             const interactives = document.querySelectorAll('.interactive-target, .btn-nav, #nav-trigger');
             interactives.forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
             });
 
-            // Feedback tattile al click
             document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
             document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
         }
@@ -491,7 +477,6 @@
         // === 02. MOTORE SINTESI AUDIO (GLITCH & PANNING) ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Autoplay Policy Fix: Sveglia l'AudioContext al primo tocco o click nel DOM
         document.body.addEventListener('click', () => {
             if(audioCtx.state === 'suspended') audioCtx.resume();
         }, { once: true });
@@ -500,7 +485,6 @@
             if(audioCtx.state === 'suspended') audioCtx.resume();
         }, { once: true });
 
-        // Libreria Frequenze Parametriche (La "Voce" della Matrice)
         const soundBank = {
             'c1-1': { type: 'sine', freq: 55.00, duration: 0.6, drop: true, vol: 0.8 },    
             'c2-1': { type: 'sine', freq: 329.6, duration: 0.04, drop: false, vol: 0.15 }, 
@@ -519,13 +503,12 @@
             const config = soundBank[cellId];
             if(!config) return;
 
-            // Logica Panning Algoritmico (Calcola la posizione X per le cuffie)
             const cellElement = document.getElementById(cellId);
             let panValue = 0; 
             
             if (cellElement) {
                 if (cellElement.closest('.pos-1')) {
-                    panValue = 0; // Il blocco principale è sempre al centro
+                    panValue = 0; 
                 } else {
                     const rect = cellElement.getBoundingClientRect();
                     const cellCenterX = rect.left + rect.width / 2;
@@ -535,11 +518,9 @@
                 }
             }
 
-            // Generazione Oscillatore e Controllo Guadagno
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
-            // Compatibilità Panner Cross-Browser
             let panner;
             if (audioCtx.createStereoPanner) {
                 panner = audioCtx.createStereoPanner();
@@ -553,17 +534,14 @@
             osc.type = config.type;
             osc.frequency.setValueAtTime(config.freq, audioCtx.currentTime);
 
-            // Modulazione Drop (Effetto Kick Drum)
             if(config.drop) {
                 osc.frequency.exponentialRampToValueAtTime(config.freq / 2, audioCtx.currentTime + config.duration);
             }
 
-            // Inviluppo AD (Attack veloce per eliminare i "click" digitali, Decay curvo)
             gain.gain.setValueAtTime(0, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(config.vol, audioCtx.currentTime + 0.005); 
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + config.duration); 
 
-            // Routing
             osc.connect(gain);
             gain.connect(panner);
             panner.connect(audioCtx.destination);
@@ -642,7 +620,6 @@
             currentStep = (currentStep + 1) % sequenceOrder.length;
         }
 
-        // Listeners Controlli Sequencer
         btnSeqPlay.addEventListener('click', () => {
             isSeqPlaying = !isSeqPlaying;
             if (isSeqPlaying) {
@@ -665,7 +642,6 @@
         btnSeqClear.addEventListener('click', () => cells.forEach(c => c.classList.remove('armed')));
         btnSeqExit.addEventListener('click', toggleSequencerMode);
 
-        // Listener Segreto (4 click/spazio consecutivi)
         navTrigger.addEventListener('click', handleTriggerClick);
         navTrigger.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') handleTriggerClick(e);
@@ -688,12 +664,11 @@
         const navLinks = document.querySelectorAll('#standard-nav .btn-nav');
         const cells = document.querySelectorAll('.cell');
 
-        // Aggiorna lo stato visivo della Navbar
         function updateNavbarActiveState(targetLevelId) {
             navLinks.forEach(link => {
                 if (link.getAttribute('data-target') === targetLevelId) {
                     link.classList.add('active');
-                    link.setAttribute('aria-current', 'page'); // A11y Letto come "pagina corrente"
+                    link.setAttribute('aria-current', 'page');
                 } else {
                     link.classList.remove('active');
                     link.removeAttribute('aria-current');
@@ -701,7 +676,6 @@
             });
         }
 
-        // Funzione core di swapping celle
         function swapToMain(targetLevelId) {
             const targetLevel = document.getElementById(targetLevelId);
             if (targetLevel.classList.contains('pos-1')) return;
@@ -719,7 +693,6 @@
                 targetLevel.classList.add('pos-1');
             };
 
-            // Esecuzione via API nativa se supportata
             if (document.startViewTransition) {
                 document.startViewTransition(performSwap);
             } else {
@@ -727,7 +700,6 @@
             }
         }
 
-        // Listeners Navigazione Esterna
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -739,7 +711,6 @@
             });
         });
 
-        // Gestore Interazione Cella
         function handleCellInteraction(e, cell) {
             if (e.target.closest('.btn-capsule')) return; 
                 
@@ -754,7 +725,6 @@
             swapToMain(parentLevel.id);
         }
 
-        // Listeners Eventi sulle Celle (Mouse, Touch e Tastiera)
         cells.forEach(cell => {
             cell.addEventListener('mousedown', (e) => handleCellInteraction(e, cell));
             
@@ -767,7 +737,6 @@
             cell.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    // Al click da tastiera, simuliamo visivamente il cursore rosso
                     if(hasCustomCursor) {
                         cursor.classList.add('clicking');
                         setTimeout(() => cursor.classList.remove('clicking'), 150);
@@ -799,7 +768,7 @@
         const iconPause = document.getElementById('icon-pause');
 
         playBtn.addEventListener('click', () => {
-            if (isSequencerMode) toggleSequencerMode(); // Spegne l'Easter Egg se si usa il player
+            if (isSequencerMode) toggleSequencerMode(); 
 
             if (audio.paused) {
                 audio.play();
@@ -816,22 +785,19 @@
             const percent = (audio.currentTime / audio.duration) * 100;
             progressBar.style.width = `${percent}%`;
             timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
-            // A11y: Aggiornamento del valore nello screen reader
             progressContainer.setAttribute('aria-valuenow', Math.floor(percent));
         });
 
-        // Controlli Timeline Mouse
         progressContainer.addEventListener('click', (e) => {
             const width = progressContainer.clientWidth;
             const clickX = e.offsetX;
             audio.currentTime = (clickX / width) * audio.duration;
         });
         
-        // Controlli Timeline Tastiera (A11y)
         progressContainer.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
                 e.preventDefault();
-                const step = 5; // Salto di 5 secondi
+                const step = 5; 
                 audio.currentTime += (e.key === 'ArrowRight' ? step : -step);
             }
         });
