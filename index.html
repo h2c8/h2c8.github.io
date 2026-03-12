@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Hōhō Studio - The Raster Matrix. Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali.">
-    <title>Hōhō Studio - The Raster Matrix</title>
-    
-    <style>
+    <title>H2 Studio | Curatorial Platform</title>
+
+<style>
         /* ==========================================================================
            01. CORE & VARIABLES
            ========================================================================== */
@@ -108,7 +108,7 @@
         }
         
         .nav-title { 
-            font-weight: 700; font-size: 1rem; text-transform: uppercase; 
+            font-weight: 700; font-size: 1rem;  
             letter-spacing: 0.05em; user-select: none;
         }
         
@@ -118,7 +118,7 @@
             display: inline-flex; align-items: center; justify-content: center;
             padding: 0.4rem 1.2rem; border: 1px solid var(--ink); border-radius: 50px;
             background: transparent; color: var(--ink); font-size: 0.7rem;
-            text-transform: uppercase; font-weight: 600; text-decoration: none;
+            font-weight: 600; text-decoration: none;
             transition: background-color 0.2s, color 0.2s;
             cursor: pointer;
         }
@@ -169,21 +169,23 @@
         .cell {
             flex: 1; 
             background: var(--bg); color: var(--ink);
-            padding: calc(max(14px, var(--pad) * var(--scale))); 
+            /* FIX 1: Abbassato il blocco del padding minimo da 14px a 8px per sbloccare spazio vitale in basso */
+            padding: calc(max(8px, var(--pad) * var(--scale))); 
             display: flex; flex-direction: column; 
             justify-content: flex-start;
             overflow: hidden; min-height: 0; min-width: 0;
             transition: background-color 0s, color 0s; 
             container-type: size; 
             cursor: pointer;
+            position: relative;
         }
         .pos-1 .cell { cursor: default; }
 
         .top { 
             display: flex; flex-direction: column; 
             gap: calc(1.2rem * var(--scale)); 
-            flex: 0 1 auto; 
-            overflow: hidden; min-height: 0; min-width: 0; 
+            flex: 0 0 auto; 
+            min-height: 0; min-width: 0; 
         }
 
         .bottom { 
@@ -197,10 +199,10 @@
         h2, .title-giant, p { margin: 0; padding: 0; }
 
         h2 { 
-            font-size: calc(1.5rem * var(--scale)); 
-            font-weight: 600; line-height: 1; 
-            letter-spacing: -0.02em; text-transform: uppercase; 
-            flex: 0 0 auto; 
+            font-size: calc(max(11px, 1.5rem * var(--scale))); 
+            font-weight: 600; line-height: 1.15; padding-top: 2px;
+            letter-spacing: -0.02em;  
+            flex-shrink: 0; 
         }
 
         p { 
@@ -209,29 +211,45 @@
             text-align: justify; hyphens: auto;
             overflow: hidden; text-overflow: ellipsis; 
             display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5;
+            flex-shrink: 0; 
         }
         
         .title-giant { 
             font-size: calc(4.5rem * var(--scale)); 
             font-weight: 500; line-height: 0.95; letter-spacing: -0.04em; 
-            flex: 0 0 auto; text-transform: uppercase;
+            flex: 0 0 auto; 
         }
 
-        @container (max-height: 180px) or (max-width: 220px) {
-            p, .artwork { display: none !important; }
-            .bottom { margin-top: calc(0.6rem * var(--scale)); }
+        /* PROTEZIONE SPAZIALE CELLE PICCOLE */
+        @container (max-height: 140px) { 
+            p, .artwork, .btn-view-data { display: none !important; }
+            
+            
+            .top { margin-top: 0; }
+            .bottom { 
+                margin-top: 5px; 
+                margin-bottom: 0; 
+            }
+        }
+
+        @container (max-width: 10px) and (min-height: 100px) {
+            p { display: none !important; }
+            .bottom { margin-top: 5px; }
         }
 
         .artwork { display: none; margin: 0; }
-        .level.pos-1 .artwork {
-            display: block; width: 100%; min-height: 0; min-width: 0; 
-            flex-shrink: 1; overflow: hidden;
-        }
-        .level.pos-1 .artwork img {
-            display: block; width: 100%; max-width: 100%; 
-            max-height: clamp(150px, 30vh, 350px); 
-            object-fit: cover; 
-            filter: grayscale(100%) contrast(120%); 
+        
+        @media (min-width: 901px) {
+            .level.pos-1 .artwork {
+                display: block; width: 100%; min-height: 0; min-width: 0; 
+                flex-shrink: 1; overflow: hidden;
+            }
+            .level.pos-1 .artwork img {
+                display: block; width: 100%; max-width: 100%; 
+                max-height: clamp(60px, 30vh, 350px); 
+                object-fit: cover; 
+                filter: grayscale(100%) contrast(120%); 
+            }
         }
 
         /* ==========================================================================
@@ -248,19 +266,22 @@
             body:not(.sequencer-mode) .level:not(.pos-1) .cell:active .btn-capsule { border-color: var(--bg); color: var(--bg); }
         }
 
-        /* Fix A11y: I bottoni delle celle ora sono SPAN che si comportano visualmente come bottoni */
         .btn-capsule {
             display: inline-flex; align-items: center; justify-content: center;
             padding: calc(max(4px, 0.4rem * var(--scale))) calc(max(10px, 1.2rem * var(--scale))); 
             border: 1px solid currentColor; border-radius: 50px;
-            background: transparent; color: inherit; 
+            background: transparent; 
+            color: inherit; 
             font-size: calc(max(9px, 0.8rem * var(--scale)));
-            text-transform: uppercase; font-weight: 600; text-decoration: none;
+            font-weight: 600; text-decoration: none;
             transition: background 0.1s, color 0.1s;
+            cursor: pointer;
         }
         
         body:not(.sequencer-mode) .level .btn-capsule:hover { background: var(--ink); color: var(--bg); }
         .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
+
+        .btn-view-data { display: none; }
 
         /* ==========================================================================
            09. FOOTER & AUDIO PLAYER
@@ -294,8 +315,31 @@
         .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
         /* ==========================================================================
-           10. MOBILE RESPONSIVENESS
+           10. DATA VIEWER (Mobile Fullscreen Image)
            ========================================================================== */
+        #data-viewer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+            background: #000000; z-index: 99999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 1rem; padding-top: calc(1rem + env(safe-area-inset-top));
+        }
+        
+        #data-viewer.active { display: flex; }
+        
+        #data-viewer img {
+            max-width: 100%; max-height: 80vh; object-fit: contain;
+            filter: grayscale(100%) contrast(120%);
+        }
+        
+        #data-viewer-close {
+            margin-top: 2rem; border: 1px solid #FFF; color: #FFF; background: transparent;
+            padding: 0.6rem 2rem; border-radius: 50px; font-weight: 600; 
+            font-size: 0.8rem; cursor: pointer; outline: none;
+        }
+
+        /* ==========================================================================
+           11. MOBILE RESPONSIVENESS
+           ========================================================================= */
         @media (max-width: 900px) {
             :root { --nav-h: 3.5rem; --pad: 1.2rem; }
             
@@ -317,31 +361,39 @@
             .time-display { width: auto; }
 
             .level.pos-1 p { -webkit-line-clamp: 8; }
-            .level.pos-1 .cell:has(.artwork) p { -webkit-line-clamp: 3; }
+            
+            .level.pos-1 .artwork { display: none !important; }
+            .level.pos-1 .cell:has(.artwork) .btn-view-data { display: inline-flex !important; } 
         }
 
         /* ==========================================================================
-           11. EASTER EGG: SEQUENCER MODE STYLES
+           12. EASTER EGG: SEQUENCER MODE STYLES
            ========================================================================== */
         body.sequencer-mode .cell { transition: background-color 0s, color 0s; }
-        body.sequencer-mode .btn-capsule { pointer-events: none; } 
+        body.sequencer-mode .btn-capsule, body.sequencer-mode .btn-view-data { pointer-events: none; } 
         body.sequencer-mode .cell.armed { background-color: var(--ink); color: var(--bg); }
         body.sequencer-mode .cell.armed .btn-capsule { border-color: var(--bg); color: var(--bg); }
         body.sequencer-mode .cell.armed img { filter: grayscale(100%) contrast(120%) invert(1); }
         body.sequencer-mode .cell.active-step { background-color: #e0e0e0; color: var(--ink); }
         body.sequencer-mode .cell.armed.active-step { background-color: #333333; color: var(--bg); }
     </style>
+
 </head>
 <body>
 
     <header class="sr-only">
-        <h1>Hōhō Studio - Matrice di ricerca acustica</h1>
+        <h1>2H Studio</h1>
     </header>
 
     <div id="red-cursor" aria-hidden="true"></div>
 
+    <div id="data-viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Visualizzatore Dati">
+        <img id="data-viewer-img" src="" alt="Data Schematic">
+        <button id="data-viewer-close">Close</button>
+    </div>
+
     <nav class="nav" aria-label="Navigazione Principale">
-        <div class="nav-title interactive-target" id="nav-trigger" tabindex="0" role="button" aria-label="Attiva modalità strumenti">方法 Hōhō Studio</div>
+        <div class="nav-title interactive-target" id="nav-trigger" tabindex="0" role="button" aria-label="Attiva modalità strumenti">2H Studio</div>
         
         <div class="nav-links" id="standard-nav">
             <button class="btn-nav active interactive-target" data-target="lvl-1">State</button>
@@ -352,9 +404,9 @@
 
         <div class="nav-links seq-controls" id="seq-nav" aria-label="Controlli Sequencer">
             <button class="btn-nav interactive-target" id="seq-btn-play">Stop</button>
-            <button class="btn-nav interactive-target" id="seq-btn-bpm">120 BPM</button>
+            <button class="btn-nav interactive-target" id="seq-btn-bpm">BPM</button>
             <button class="btn-nav interactive-target" id="seq-btn-clear">Clear</button>
-            <button class="btn-nav interactive-target" id="seq-btn-exit" style="border-color: transparent;">Exit</button>
+            <button class="btn-nav interactive-target" id="seq-btn-exit">Exit</button>
         </div>
     </nav>
 
@@ -362,10 +414,21 @@
         <div id="lvl-1" class="level pos-1">
             <div class="cell interactive-target" id="c1-1" tabindex="0" role="button" aria-label="Sezione principale: H2 Dev Studio">
                 <div class="top">
-                    <h2 class="title-giant">H2 DEV STUDIO</h2>
-                    <p>Un'indagine acustica sull'architettura sottrattiva e la sintesi parametrica delle onde sinusoidali. Questo progetto sfida i limiti della percezione acustica confinando l'algoritmo all'interno delle rigorose leggi della geometria spaziale di Casa Viola.</p>
+                    <h2 class="title-giant">How To Choose in the Infinity?</h2>
+                    
+                    <!--<div class="artwork">
+                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Rappresentazione dati acustici">
+                    </div>-->
+
+                    <p>Piattaforma Curatoriale per Sonic Studies. Based in Taranto, 2026.<br>Proudly inspired by Fibonacci Series.</br></p>
+                    
                 </div>
-                <div class="bottom"><span class="btn-capsule" aria-hidden="true">Enter Process</span></div>
+                <div class="bottom">
+                    <div class="player-inner">
+                        <span class="btn-capsule" aria-hidden="true">DISCOVER</span>
+                        <span class="btn-capsule btn-view-data" aria-hidden="true">.jpeg</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -373,10 +436,17 @@
             <div class="cell interactive-target" id="c2-1" tabindex="0" role="button" aria-label="Espandi progetto Q-cycle">
                 <div class="top">
                     <h2>Q-cycle</h2>
-                    <div class="artwork"><img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Rappresentazione dati acustici"></div>
+                    <div class="artwork">
+                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Dati">
+                    </div>
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
-                <div class="bottom"><span class="btn-capsule" aria-hidden="true">GitHub</span></div>
+                <div class="bottom">
+                    <div class="player-inner">
+                        <span class="btn-capsule" aria-hidden="true">GitHub</span>
+                        <span class="btn-capsule btn-view-data" aria-hidden="true">View Data</span>
+                    </div>
+                </div>
             </div>
             <div class="cell interactive-target" id="c2-2" tabindex="0" role="button" aria-label="Espandi progetto Q-Room">
                 <div class="top">
@@ -390,7 +460,7 @@
         <div id="lvl-3" class="level pos-3">
             <div class="cell interactive-target" id="c3-1" tabindex="0" role="button" aria-label="Espandi media Site Specific">
                 <div class="top">
-                    <h2>Site Specific</h2>
+                    <h2>Site-Specific</h2>
                     <p>Registrazione binaurale dalla performance live. Si consiglia l'uso di cuffie.</p>
                 </div>
                 <div class="bottom">
@@ -424,8 +494,11 @@
                 <div class="top"><h2>Credits</h2><p>Tech specs and engineers.</p></div>
                 <div class="bottom"><span class="btn-capsule" aria-hidden="true">View</span></div>
             </div>
-            <div class="cell interactive-target" id="c4-3" tabindex="0" role="button" aria-label="Espandi lista Partners">
-                <div class="top"><h2>Partners</h2><p>Cultural institutions.</p></div>
+            <div class="cell interactive-target" id="c4-3" tabindex="0" role="button" aria-label="Espandi lista Policy">
+                <div class="top">
+                    <h2>A11Y</h2>
+                    <p>Accessibility guidelines and legislations we test by:<br>WCAG 2.2 EN 301 549 EEA</br></p>
+                </div>
                 <div class="bottom"><span class="btn-capsule" aria-hidden="true">List</span></div>
             </div>
             <div class="cell interactive-target" id="c4-4" tabindex="0" role="button" aria-label="Apri contatti">
@@ -436,7 +509,7 @@
     </main>
 
     <footer class="footer" aria-label="Player Audio Principale">
-        <audio id="audio-track" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="metadata"></audio>
+        <audio id="audio-track" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="metadata" aria-label="Traccia audio sperimentale"></audio>
             <button id="play-btn" class="play-btn interactive-target" aria-label="Riproduci o metti in pausa la traccia">
                 <svg id="icon-play" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
                     <path d="M6 4l14 8-14 8z"/>
@@ -464,7 +537,7 @@
                 cursor.style.transform = `translate3d(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%), 0)`;
             });
 
-            const interactives = document.querySelectorAll('.interactive-target, .btn-nav, #nav-trigger');
+            const interactives = document.querySelectorAll('.interactive-target, .btn-nav, #nav-trigger, .btn-view-data');
             interactives.forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
@@ -477,13 +550,12 @@
         // === 02. MOTORE SINTESI AUDIO (GLITCH & PANNING) ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        document.body.addEventListener('click', () => {
+        // SBLOCCO GLOBALE: Ora ascolta anche i tocchi (touchstart), non solo i click
+        const unlockAudio = () => {
             if(audioCtx.state === 'suspended') audioCtx.resume();
-        }, { once: true });
-        
-        document.body.addEventListener('keydown', () => {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-        }, { once: true });
+            ['click', 'touchstart', 'keydown'].forEach(evt => document.body.removeEventListener(evt, unlockAudio));
+        };
+        ['click', 'touchstart', 'keydown'].forEach(evt => document.body.addEventListener(evt, unlockAudio, { passive: true }));
 
         const soundBank = {
             'c1-1': { type: 'sine', freq: 55.00, duration: 0.6, drop: true, vol: 0.8 },    
@@ -498,8 +570,12 @@
             'c4-4': { type: 'sine', freq: 200, duration: 0.1, drop: false, vol: 0.6 }         
         };
 
-        function playGlitch(cellId) {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
+        // FIX: Funzione asincrona che attende il permesso del browser prima di suonare
+        async function playGlitch(cellId) {
+            if(audioCtx.state === 'suspended') {
+                await audioCtx.resume(); // Ferma il codice finché Chrome non dà l'ok
+            }
+            
             const config = soundBank[cellId];
             if(!config) return;
 
@@ -513,8 +589,7 @@
                     const rect = cellElement.getBoundingClientRect();
                     const cellCenterX = rect.left + rect.width / 2;
                     const screenCenter = window.innerWidth / 2;
-                    panValue = (cellCenterX - screenCenter) / screenCenter;
-                    panValue = Math.max(-1, Math.min(1, panValue)); 
+                    panValue = (cellCenterX > screenCenter) ? 1 : -1; 
                 }
             }
 
@@ -660,9 +735,14 @@
             }
         }
 
-        // === 04. MOTORE SPAZIALE (VIEW TRANSITIONS) ===
+        // === 04. MOTORE SPAZIALE E GESTIONE DATA VIEWER ===
         const navLinks = document.querySelectorAll('#standard-nav .btn-nav');
         const cells = document.querySelectorAll('.cell');
+        
+        const dataViewer = document.getElementById('data-viewer');
+        const dataViewerImg = document.getElementById('data-viewer-img');
+        const dataViewerClose = document.getElementById('data-viewer-close');
+        const btnViewDataList = document.querySelectorAll('.btn-view-data');
 
         function updateNavbarActiveState(targetLevelId) {
             navLinks.forEach(link => {
@@ -711,8 +791,30 @@
             });
         });
 
+        // Event listener pulsanti Data Viewer (Mobile)
+        btnViewDataList.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evita lo swap della cella
+                if (isSequencerMode) return;
+                
+                const parentCell = e.target.closest('.cell');
+                const img = parentCell.querySelector('.artwork img');
+                
+                if (img) {
+                    dataViewerImg.src = img.src;
+                    dataViewer.classList.add('active');
+                }
+            });
+        });
+
+        dataViewerClose.addEventListener('click', () => {
+            dataViewer.classList.remove('active');
+            dataViewerImg.src = "";
+        });
+
         function handleCellInteraction(e, cell) {
-            if (e.target.closest('.btn-capsule')) return; 
+            // Ignora se l'utente clicca un bottone a capsula o View Data
+            if (e.target.closest('.btn-capsule') || e.target.closest('.btn-view-data')) return; 
                 
             if (isSequencerMode) {
                 cell.classList.toggle('armed');
@@ -725,12 +827,18 @@
             swapToMain(parentLevel.id);
         }
 
-        cells.forEach(cell => {
+            cells.forEach(cell => {
             cell.addEventListener('mousedown', (e) => handleCellInteraction(e, cell));
             
             cell.addEventListener('touchstart', (e) => {
-                if (e.target.closest('.btn-capsule')) return;
-                if (isSequencerMode) { e.preventDefault(); }
+                if (e.target.closest('.btn-capsule') || e.target.closest('.btn-view-data')) return;
+                
+                // FIX: Blocca il "Ghost Click" solo se l'evento è effettivamente cancellabile.
+                // Evita l'avviso "[Intervention]" in console.
+                if (e.cancelable) {
+                    e.preventDefault(); 
+                }
+                
                 handleCellInteraction(e, cell);
             }, {passive: false});
 
