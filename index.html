@@ -76,7 +76,7 @@
                 border: 1px solid var(--led);
                 border-radius: 50%;
                 pointer-events: none; 
-                z-index: 9999;
+                z-index: 999999;
                 transition: width 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
                             height 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
                             background-color 0.15s ease, 
@@ -104,7 +104,9 @@
             flex: 0 0 var(--nav-h); width: 100%;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 1.5rem; border-bottom: 1px solid var(--ink);
-            background: var(--bg); z-index: 10;
+            background: var(--bg); 
+            z-index: 100; 
+            position: relative; 
         }
         
         .nav-title { 
@@ -135,6 +137,7 @@
            05. FIBONACCI MATRIX (The Core Grid)
            ========================================================================== */
         .dashboard {
+            position: relative; 
             flex: 1; min-height: 0; 
             display: grid; width: 100%;
             background: var(--ink); gap: 1px; 
@@ -169,16 +172,27 @@
         .cell {
             flex: 1; 
             background: var(--bg); color: var(--ink);
-            /* FIX 1: Abbassato il blocco del padding minimo da 14px a 8px per sbloccare spazio vitale in basso */
-            padding: calc(max(8px, var(--pad) * var(--scale))); 
+            padding: calc(max(14px, var(--pad) * var(--scale))); 
             display: flex; flex-direction: column; 
             justify-content: flex-start;
+            align-items: flex-start; 
             overflow: hidden; min-height: 0; min-width: 0;
-            transition: background-color 0s, color 0s; 
+            transition: background-color 0.1s, color 0.1s; 
             container-type: size; 
             cursor: pointer;
             position: relative;
+
+            -webkit-tap-highlight-color: transparent;
         }
+
+        .level.pos-4 .cell {
+            padding: 8px 12px !important; 
+        }
+        
+        .level.pos-4 .bottom {
+            margin-top: 4px !important; 
+        }
+
         .pos-1 .cell { cursor: default; }
 
         .top { 
@@ -194,7 +208,7 @@
         }
 
         /* ==========================================================================
-           07. TYPOGRAPHY & IMAGES
+           07. TYPOGRAPHY & IMAGES (Progressive Disclosure)
            ========================================================================== */
         h2, .title-giant, p { margin: 0; padding: 0; }
 
@@ -220,68 +234,80 @@
             flex: 0 0 auto; 
         }
 
-        /* PROTEZIONE SPAZIALE CELLE PICCOLE */
         @container (max-height: 140px) { 
             p, .artwork, .btn-view-data { display: none !important; }
-            
-            
-            .top { margin-top: 0; }
-            .bottom { 
-                margin-top: 5px; 
-                margin-bottom: 0; 
-            }
+            .top { margin-top: 0 !important; gap: 0 !important; }
+            .bottom { margin-top: 4px; margin-bottom: 0 !important; }
         }
 
         @container (max-width: 10px) and (min-height: 100px) {
             p { display: none !important; }
-            .bottom { margin-top: 5px; }
+            .bottom { margin-top: 4px; }
         }
 
-        .artwork { display: none; margin: 0; }
+        .artwork { display: none !important; } 
+        .btn-view-data { display: none; }
         
         @media (min-width: 901px) {
-            .level.pos-1 .artwork {
-                display: block; width: 100%; min-height: 0; min-width: 0; 
-                flex-shrink: 1; overflow: hidden;
-            }
-            .level.pos-1 .artwork img {
-                display: block; width: 100%; max-width: 100%; 
-                max-height: clamp(60px, 30vh, 350px); 
-                object-fit: cover; 
-                filter: grayscale(100%) contrast(120%); 
+            .level.pos-1 .top { flex: 1; }
+
+            .level.pos-1 .cell:has(.artwork) .btn-view-data,
+            .level.pos-2 .cell:has(.artwork) .btn-view-data { 
+                display: inline-flex !important; 
             }
         }
+        /* ERRORE DI SINTASSI RISOLTO: Qui c'erano regole duplicate e una parentesi di troppo che bloccava il CSS */
 
         /* ==========================================================================
            08. INTERACTION & BOOLEAN MASS INVERSION (Hover/Active)
            ========================================================================== */
         @media (hover: hover) {
-            body:not(.sequencer-mode) .level:not(.pos-1) .cell:hover { background-color: var(--ink); color: var(--bg); }
-            body:not(.sequencer-mode) .level:not(.pos-1) .cell:hover .btn-capsule { border-color: var(--bg); color: var(--bg); }
-            body:not(.sequencer-mode) .level:not(.pos-1) .cell:hover .btn-capsule:hover { background-color: var(--bg); color: var(--ink); }
+            /* ORA SI APPLICA A TUTTE LE CELLE: si invertono i colori al passaggio del mouse */
+            body:not(.sequencer-mode) .level .cell:hover { 
+                background-color: var(--ink); 
+                color: var(--bg); 
+            }
+            body:not(.sequencer-mode) .level .cell:hover .btn-capsule { 
+                border-color: var(--bg); 
+                color: var(--bg); 
+            }
+            body:not(.sequencer-mode) .level .cell:hover .btn-capsule:hover { 
+                background-color: var(--bg); 
+                color: var(--ink); 
+            }
         }
 
         @media (hover: none) {
-            body:not(.sequencer-mode) .level:not(.pos-1) .cell:active { background-color: var(--ink); color: var(--bg); }
-            body:not(.sequencer-mode) .level:not(.pos-1) .cell:active .btn-capsule { border-color: var(--bg); color: var(--bg); }
+            /* ORA SI APPLICA A TUTTE LE CELLE: su touch si invertono quando le "premi" */
+            body:not(.sequencer-mode) .level .cell:active { 
+                background-color: var(--ink); 
+                color: var(--bg); 
+            }
+            body:not(.sequencer-mode) .level .cell:active .btn-capsule { 
+                border-color: var(--bg); 
+                color: var(--bg); 
+            }
         }
 
         .btn-capsule {
             display: inline-flex; align-items: center; justify-content: center;
             padding: calc(max(4px, 0.4rem * var(--scale))) calc(max(10px, 1.2rem * var(--scale))); 
-            border: 1px solid currentColor; border-radius: 50px;
+            
+            /* BORDI BLINDATI ESPLICITI */
+            border: 1px solid var(--ink); 
+            color: var(--ink); 
+            
+            border-radius: 50px;
             background: transparent; 
-            color: inherit; 
             font-size: calc(max(9px, 0.8rem * var(--scale)));
             font-weight: 600; text-decoration: none;
-            transition: background 0.1s, color 0.1s;
+            transition: background 0.1s, color 0.1s, border-color 0.1s;
             cursor: pointer;
+            text-transform: uppercase; 
+            min-width: calc(max(65px, 5.5rem * var(--scale))); 
         }
         
-        body:not(.sequencer-mode) .level .btn-capsule:hover { background: var(--ink); color: var(--bg); }
         .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
-
-        .btn-view-data { display: none; }
 
         /* ==========================================================================
            09. FOOTER & AUDIO PLAYER
@@ -292,7 +318,9 @@
             padding: 0 1.5rem; 
             border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
             padding-bottom: env(safe-area-inset-bottom); 
-            background: var(--bg); gap: 1.5rem; z-index: 10;
+            background: var(--bg); gap: 1.5rem; 
+            z-index: 100; 
+            position: relative;
         }
         
         .play-btn { 
@@ -315,26 +343,43 @@
         .time-display { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; width: 80px; text-align: right; }
 
         /* ==========================================================================
-           10. DATA VIEWER (Mobile Fullscreen Image)
+           10. DATA VIEWER (Incastrato nella Dashboard, Sfondo Bianco)
            ========================================================================== */
         #data-viewer {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: #000000; z-index: 99999;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 1rem; padding-top: calc(1rem + env(safe-area-inset-top));
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100dvh;
+            background: var(--bg); 
+            z-index: 50; 
+            padding-top: calc(var(--nav-h) + 1rem); 
+            padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 1rem);
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+            display: none; flex-direction: column; 
+            align-items: center; justify-content: center;
         }
         
         #data-viewer.active { display: flex; }
         
         #data-viewer img {
-            max-width: 100%; max-height: 80vh; object-fit: contain;
+            max-width: 100%; max-height: calc(100% - 4rem); 
+            object-fit: contain;
             filter: grayscale(100%) contrast(120%);
         }
         
         #data-viewer-close {
-            margin-top: 2rem; border: 1px solid #FFF; color: #FFF; background: transparent;
+            margin-top: 1.5rem; 
+            border: 1px solid var(--ink); color: var(--ink); 
+            background: transparent;
             padding: 0.6rem 2rem; border-radius: 50px; font-weight: 600; 
             font-size: 0.8rem; cursor: pointer; outline: none;
+            text-transform: uppercase;
+            transition: background 0.2s, color 0.2s;
+        }
+        
+        #data-viewer-close:hover {
+            background: var(--ink);
+            color: var(--bg);
         }
 
         /* ==========================================================================
@@ -376,6 +421,31 @@
         body.sequencer-mode .cell.armed img { filter: grayscale(100%) contrast(120%) invert(1); }
         body.sequencer-mode .cell.active-step { background-color: #e0e0e0; color: var(--ink); }
         body.sequencer-mode .cell.armed.active-step { background-color: #333333; color: var(--bg); }
+
+        /* ==========================================================================
+           FIX DEFINITIVO: LAYOUT ORIZZONTALE LIVELLO 4 (SOLO QUANDO È IN POS-3)
+           ========================================================================== */
+        
+        #lvl-4.pos-3 .cell {
+            flex-direction: row !important;
+            align-items: center !important; 
+            justify-content: flex-start !important;
+        }
+
+        #lvl-4.pos-3 .top {
+            margin: 0 !important;
+            flex: 0 0 65px !important; 
+        }
+        
+        #lvl-4.pos-3 .bottom {
+            margin: 0 !important;
+        }
+        
+        #lvl-4.pos-3 h2 {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
     </style>
 
 </head>
@@ -396,39 +466,40 @@
         <div class="nav-title interactive-target" id="nav-trigger" tabindex="0" role="button" aria-label="Attiva modalità strumenti">2H Studio</div>
         
         <div class="nav-links" id="standard-nav">
-            <button class="btn-nav active interactive-target" data-target="lvl-1">State</button>
-            <button class="btn-nav interactive-target" data-target="lvl-2">Dev</button>
-            <button class="btn-nav interactive-target" data-target="lvl-3">Media</button>
-            <button class="btn-nav interactive-target" data-target="lvl-4">Info</button>
+            <button class="btn-nav active interactive-target" data-target="lvl-1">STATE</button>
+            <button class="btn-nav interactive-target" data-target="lvl-2">DEV</button>
+            <button class="btn-nav interactive-target" data-target="lvl-3">MEDIA</button>
+            <button class="btn-nav interactive-target" data-target="lvl-4">INFO</button>
         </div>
 
         <div class="nav-links seq-controls" id="seq-nav" aria-label="Controlli Sequencer">
-            <button class="btn-nav interactive-target" id="seq-btn-play">Stop</button>
+            <button class="btn-nav interactive-target" id="seq-btn-play">STOP</button>
             <button class="btn-nav interactive-target" id="seq-btn-bpm">BPM</button>
-            <button class="btn-nav interactive-target" id="seq-btn-clear">Clear</button>
-            <button class="btn-nav interactive-target" id="seq-btn-exit">Exit</button>
+            <button class="btn-nav interactive-target" id="seq-btn-clear">CLEAR</button>
+            <button class="btn-nav interactive-target" id="seq-btn-exit">EXIT</button>
         </div>
     </nav>
 
     <main class="dashboard">
         <div id="lvl-1" class="level pos-1">
             <div class="cell interactive-target" id="c1-1" tabindex="0" role="button" aria-label="Sezione principale: H2 Dev Studio">
+                
                 <div class="top">
                     <h2 class="title-giant">How To Choose in the Infinity?</h2>
-                    
-                    <!--<div class="artwork">
-                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Rappresentazione dati acustici">
-                    </div>-->
-
-                    <p>Piattaforma Curatoriale per Sonic Studies. Based in Taranto, 2026.<br>Proudly inspired by Fibonacci Series.</br></p>
-                    
+                    <p>Piattaforma Curatoriale per Sonic Studies.<br>Proudly inspired by Fibonacci Series.<br>Based in Taranto, 2026.</p>
                 </div>
+
+                <div class="artwork">
+                    <img src="C:\Users\C LAB R&D\Desktop\UX TEST\1.png" alt="How to choose artwork">
+                </div>
+                
                 <div class="bottom">
                     <div class="player-inner">
                         <span class="btn-capsule" aria-hidden="true">DISCOVER</span>
-                        <span class="btn-capsule btn-view-data" aria-hidden="true">.jpeg</span>
+                        <span class="btn-capsule btn-view-data" aria-hidden="true">.JPEG</span>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -436,15 +507,12 @@
             <div class="cell interactive-target" id="c2-1" tabindex="0" role="button" aria-label="Espandi progetto Q-cycle">
                 <div class="top">
                     <h2>Q-cycle</h2>
-                    <div class="artwork">
-                        <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=1200&auto=format&fit=crop" alt="Dati">
-                    </div>
                     <p>Generatore di frequenze vincolato a logiche algoritmiche sottrattive accoppiato all'analisi dati in tempo reale.</p>
                 </div>
                 <div class="bottom">
                     <div class="player-inner">
                         <span class="btn-capsule" aria-hidden="true">GitHub</span>
-                        <span class="btn-capsule btn-view-data" aria-hidden="true">View Data</span>
+                        <span class="btn-capsule btn-view-data" aria-hidden="true">.jpeg</span>
                     </div>
                 </div>
             </div>
