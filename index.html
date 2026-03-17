@@ -293,7 +293,23 @@
             min-width: calc(max(65px, 5.5rem * var(--scale))); 
         }
         
-        .player-inner { display: flex; gap: calc(0.5rem * var(--scale)); }
+                    /* Allinea i pulsanti in orizzontale */
+            .player-inner {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px; /* Spazio tra un pulsante e l'altro */
+            }
+
+            /* Di base (nelle celle in anteprima/rotazione): nascondi tutti i bottoni tranne il primo */
+            .cell .player-inner .btn-capsule:not(:first-child) {
+                display: none;
+            }
+
+            /* Quando la cella "sale" nel Livello 1 (che ha la classe .pos-1), mostra TUTTI i bottoni */
+            .pos-1 .cell .player-inner .btn-capsule {
+                display: inline-flex; /* o inline-block, a seconda del tuo CSS base */
+            }
 
         /* ==========================================================================
            09. FOOTER & AUDIO PLAYER
@@ -479,13 +495,14 @@
                 </div>
 
                 <div class="artwork">
-                    <img src="C:\Users\C LAB R&D\Desktop\UX TEST\media\Q-Poster2.PNG" alt="How to choose artwork">
+                    <img src="media/Q-Poster2.PNG" alt="How to choose artwork">
                 </div>
                 
                 <div class="bottom">
                     <div class="player-inner">
-                        <span class="btn-capsule btn-view-data" aria-hidden="true">.JPEG</span>
-                    </div>
+                        <span class="btn-capsule btn-view-data" data-type="image" data-src="media/Q-Poster2.PNG" aria-hidden="true">.JPEG</span>
+                        <span class="btn-capsule btn-view-data" data-type="youtube" data-src="https://youtu.be/h3pJkR54RRs?si=TuFsvbVCPA8fDzwu">.VIDEO</span>                       
+                        </div>
                 </div>
 
             </div>
@@ -505,6 +522,7 @@
                 <div class="bottom">
                     <div class="player-inner">
                         <span class="btn-capsule btn-view-data" aria-hidden="true">.UI</span>
+                        <span class="btn-capsule btn-view-data" data-type="pdf" data-src="report.pdf" aria-hidden="true">.PDF</span>
                     </div>
                 </div>
                 
@@ -547,6 +565,8 @@
                 </div>
 
             </div>
+
+
             <div class="cell interactive-target" id="c3-2" tabindex="0" role="button" aria-label="Espandi log Spatial Setup">
                 <div class="top">
                     <h2>Spatial Setup</h2>
@@ -561,6 +581,7 @@
                         <span class="btn-capsule btn-view-data" aria-hidden="true">.PDF</span>
                     </div>
                 </div>
+
 
             </div>
             <div class="cell interactive-target" id="c3-3" tabindex="0" role="button" aria-label="Espandi schemi Hardware">
@@ -619,18 +640,15 @@
         <div class="time-display" id="time-display" aria-live="polite">0:00 / 0:00</div>
     </footer>
 
-    <!-- close pulsante per img e pdf -->
+    <!-- close pulsante per img e pdf e video -->
 
-
-    <div id="data-viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Visualizzatore Dati">
-        <img id="data-viewer-img" src="" alt="Data Schematic">
-        <button id="data-viewer-close">Close</button>
-    </div>
-
-    <div id="data-viewer">
+<div id="data-viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Visualizzatore Dati">
+        
         <img id="viewer-img" src="" alt="Data Output" style="display: none;">
         
         <iframe id="viewer-pdf" src="" type="application/pdf" style="display: none;"></iframe>
+        
+        <iframe id="viewer-video" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display: none; width: 100%; height: 100%;"></iframe>
         
         <button id="data-viewer-close">CLOSE</button>
     </div>
@@ -1000,58 +1018,83 @@
             }
         });
 
+        // iframe pdf e yt
+
         document.addEventListener('DOMContentLoaded', () => {
-            
             const viewDataBtns = document.querySelectorAll('.btn-view-data');
             const dataViewer = document.getElementById('data-viewer');
+            
+            // I tre schermi possibili
             const viewerImg = document.getElementById('viewer-img');
             const viewerPdf = document.getElementById('viewer-pdf');
+            const viewerVideo = document.getElementById('viewer-video'); 
+            
             const closeBtn = document.getElementById('data-viewer-close');
 
-            // Controllo di sicurezza: se manca l'HTML, il JS te lo segnala
-            if (!dataViewer || !viewerPdf || !viewerImg) {
-                console.error("ATTENZIONE: Manca l'HTML del Data Viewer (img o iframe) in fondo alla pagina!");
-                return;
-            }
+            // Verifica che il visore principale esista
+            if (!dataViewer) return;
 
             viewDataBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Blocca il click per non far muovere la cella
+                    e.stopPropagation(); // Blocca il movimento della griglia
                     
                     const cell = btn.closest('.cell');
-                    if (!cell) return; // Se il bottone non è in una cella, si ferma
+                    if (!cell) return;
 
                     const artwork = cell.querySelector('.artwork');
-                    if (!artwork) return; // Se non c'è il div .artwork con i dati, si ferma
+                    if (!artwork) return;
                     
-                    const src = artwork.getAttribute('data-src');
-                    const type = artwork.getAttribute('data-type');
+                    // 1. Tenta di leggere le etichette scritte direttamente sul bottone
+                    let src = btn.getAttribute('data-src');
+                    let type = btn.getAttribute('data-type');
 
+                    // 2. Piano B (Retrocompatibilità): Se il bottone è vuoto, cerca un'immagine fisica nella cella
+                    if (!src && artwork) {
+                        const mediaTag = artwork.querySelector('img, iframe');
+                        if (mediaTag) {
+                            src = mediaTag.getAttribute('src');
+                            type = mediaTag.tagName.toLowerCase() === 'iframe' ? 'pdf' : 'image';
+                        }
+                    }
+
+                    // Se la cella è completamente vuota, fermati
+                    if (!src) return;
+
+                    // 3. Accendi lo schermo giusto e spegni tutti gli altri
                     if (type === 'pdf') {
-                        viewerImg.style.display = 'none';
-                        viewerImg.src = '';
-                        viewerPdf.style.display = 'block';
-                        viewerPdf.src = src || '';
-                    } else {
-                        viewerPdf.style.display = 'none';
-                        viewerPdf.src = '';
-                        viewerImg.style.display = 'block';
-                        viewerImg.src = src || '';
+                        if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
+                        if(viewerVideo) { viewerVideo.style.display = 'none'; viewerVideo.src = ''; }
+                        if(viewerPdf) { viewerPdf.style.display = 'block'; viewerPdf.src = src; }
+                    } 
+                    else if (type === 'youtube') {
+                        if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
+                        if(viewerPdf) { viewerPdf.style.display = 'none'; viewerPdf.src = ''; }
+                        if(viewerVideo) { viewerVideo.style.display = 'block'; viewerVideo.src = src; }
+                    } 
+                    else {
+                        // Caso Immagine (default)
+                        if(viewerPdf) { viewerPdf.style.display = 'none'; viewerPdf.src = ''; }
+                        if(viewerVideo) { viewerVideo.style.display = 'none'; viewerVideo.src = ''; }
+                        if(viewerImg) { viewerImg.style.display = 'block'; viewerImg.src = src; }
                     }
 
                     dataViewer.classList.add('active');
                 });
             });
 
+            // 4. Gestione chiusura e spegnimento audio/video in background
             if (closeBtn) {
                 closeBtn.addEventListener('click', () => {
                     dataViewer.classList.remove('active');
-                    viewerImg.src = '';
-                    viewerPdf.src = '';
+                    
+                    // Svuota la memoria di tutti gli schermi (FONDAMENTALE per stoppare l'audio di YouTube)
+                    if(viewerImg) viewerImg.src = '';
+                    if(viewerPdf) viewerPdf.src = ''; 
+                    if(viewerVideo) viewerVideo.src = '';
                 });
             }
         });
-   
+
     </script>
 </body>
 </html>
