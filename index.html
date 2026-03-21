@@ -335,12 +335,39 @@
         .play-btn svg { transition: transform 0.1s ease; }
         .play-btn:active svg { transform: scale(0.85); }
         
-        .progress-container { flex: 1; height: 1px; background: #e0e0e0; position: relative; cursor: pointer; }
-        .progress-bar { height: 100%; background: var(--ink); width: 0%; transition: width 0.1s linear; position: relative; }
+        /* --- FIX PLAYER: HITBOX E SCORRIMENTO FLUIDO --- */
+        .progress-container { 
+            flex: 1; 
+            height: 1px; 
+            background: #e0e0e0; 
+            position: relative; 
+            cursor: pointer; 
+            touch-action: none; /* FONDAMENTALE: impedisce al telefono di scrollare la pagina mentre trascini l'audio */
+        }
         
+        /* Creiamo una "zona di tocco" invisibile alta 30px per i polpastrelli */
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            z-index: 1;
+        }
+
+        .progress-bar { 
+            height: 100%; 
+            background: var(--ink); 
+            width: 0%; 
+            position: relative; 
+            pointer-events: none; /* Il tocco passa attraverso e colpisce il container */
+        }
+        
+        /* Ingrandiamo leggermente il "pallino" su mobile per visibilità */
         .progress-bar::after {
-            content: ''; position: absolute; right: 0; top: 50%;
-            transform: translateY(-50%); width: 6px; height: 6px;
+            content: ''; position: absolute; right: -4px; top: 50%;
+            transform: translateY(-50%); width: 8px; height: 8px;
             background: var(--ink); border-radius: 50%;
         }
         
@@ -1025,10 +1052,46 @@
             progressContainer.setAttribute('aria-valuenow', Math.floor(percent));
         });
 
-        progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
-            audio.currentTime = (clickX / width) * audio.duration;
+// ==========================================================================
+        // FIX: SCRUBBING FLUIDO PROGRESS BAR (Mouse + Touch)
+        // ==========================================================================
+        let isDraggingProgress = false;
+
+        function updateAudioProgress(e) {
+            if (!audio.duration) return;
+            const rect = progressContainer.getBoundingClientRect();
+            // Calcola la posizione esatta del dito/mouse
+            let clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            
+            let clickX = clientX - rect.left;
+            // Blocca il cursore tra l'inizio e la fine della barra (evita che sbordi)
+            clickX = Math.max(0, Math.min(clickX, rect.width)); 
+            
+            const widthPercentage = (clickX / rect.width);
+            audio.currentTime = widthPercentage * audio.duration;
+            progressBar.style.width = `${widthPercentage * 100}%`;
+        }
+
+        // 1. Quando premi il dito/mouse
+        progressContainer.addEventListener('pointerdown', (e) => {
+            isDraggingProgress = true;
+            progressContainer.setPointerCapture(e.pointerId); // "Cattura" il dito anche se esce fuori dalla barra
+            updateAudioProgress(e);
+        });
+
+        // 2. Quando muovi il dito/mouse (Scrubbing)
+        progressContainer.addEventListener('pointermove', (e) => {
+            if (isDraggingProgress) {
+                updateAudioProgress(e);
+            }
+        });
+
+        // 3. Quando alzi il dito/mouse
+        progressContainer.addEventListener('pointerup', (e) => {
+            if (isDraggingProgress) {
+                isDraggingProgress = false;
+                progressContainer.releasePointerCapture(e.pointerId);
+            }
         });
         
         progressContainer.addEventListener('keydown', (e) => {
